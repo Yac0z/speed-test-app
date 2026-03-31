@@ -100,7 +100,10 @@ export function SpeedTestDashboard() {
       {/* Top accent line */}
       <div className="fixed left-0 right-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-cyan-neon to-transparent" />
 
-      <div className={`relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 transition-all duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Scanline overlay */}
+      <div className="pointer-events-none fixed inset-0 z-10 opacity-[0.02]" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.1) 2px, rgba(0,240,255,0.1) 4px)' }} />
+
+      <div className={`relative z-20 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 transition-all duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
         {/* Header */}
         <header className="mb-8 text-center">
           <div className="mb-2 inline-flex items-center gap-2">
@@ -119,43 +122,72 @@ export function SpeedTestDashboard() {
         </header>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Test Area */}
+          {/* Main Test Area - Holographic Panel */}
           <div className="lg:col-span-2">
-            <div className="cyber-card p-6">
-              <SpeedGauge
-                currentSpeed={state.currentSpeed}
-                phase={state.phase}
-                progress={state.progress}
-              />
+            <div className="relative">
+              {/* Corner accents */}
+              <div className="pointer-events-none absolute -left-1 -top-1 z-30 h-6 w-6 border-l-2 border-t-2 border-cyan-neon/60" />
+              <div className="pointer-events-none absolute -right-1 -top-1 z-30 h-6 w-6 border-r-2 border-t-2 border-cyan-neon/60" />
+              <div className="pointer-events-none absolute -bottom-1 -left-1 z-30 h-6 w-6 border-b-2 border-l-2 border-cyan-neon/60" />
+              <div className="pointer-events-none absolute -bottom-1 -right-1 z-30 h-6 w-6 border-b-2 border-r-2 border-cyan-neon/60" />
 
-              <div className="mt-8 flex justify-center">
-                <button
-                  type="button"
-                  onClick={handleButtonClick}
-                  className={`cyber-btn relative rounded-lg px-10 py-4 text-lg font-bold tracking-wider text-white uppercase transition-all duration-300 ${
-                    buttonConfig.variant === 'danger'
-                      ? 'bg-red-600/80 shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:bg-red-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.5)]'
-                      : 'bg-cyan-neon/10 text-cyan-neon shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:bg-cyan-neon/20 hover:shadow-[0_0_30px_rgba(0,240,255,0.4)] border border-cyan-neon/30 hover:border-cyan-neon/60'
-                  }`}
-                >
-                  <span className="relative z-10">{buttonConfig.text}</span>
-                </button>
-              </div>
+              {/* Panel background - more transparent, blends with background */}
+              <div className="relative rounded-xl border border-cyan-neon/10 bg-gradient-to-br from-cyan-neon/[0.02] via-transparent to-purple-neon/[0.02] p-6 backdrop-blur-sm">
+                {/* Inner glow during testing */}
+                {isTesting && (
+                  <div className="pointer-events-none absolute inset-0 rounded-xl bg-cyan-neon/[0.03] animate-neon-pulse" />
+                )}
 
-              {state.phase === 'complete' && results && (
-                <div className="mt-8 animate-fade-in-up">
-                  <TestResults
-                    results={results}
-                    onComplete={handleTestComplete}
-                  />
+                {/* Top bar */}
+                <div className="mb-4 flex items-center justify-between border-b border-cyan-neon/10 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className={`h-1.5 w-1.5 rounded-full ${isTesting ? 'animate-pulse bg-cyan-neon' : 'bg-slate-700'}`} />
+                    <span className="font-mono text-[10px] tracking-widest text-slate-500 uppercase">
+                      {isTesting ? `>> ${state.phase}_phase` : '>> idle'}
+                    </span>
+                  </div>
+                  <div className="flex gap-1">
+                    <div className="h-1 w-8 rounded-full bg-cyan-neon/20" />
+                    <div className="h-1 w-4 rounded-full bg-cyan-neon/10" />
+                    <div className="h-1 w-2 rounded-full bg-cyan-neon/5" />
+                  </div>
                 </div>
-              )}
 
-              {saving && (
-                <p className="mt-4 text-center font-mono text-sm text-cyan-neon/60">
-                  {'> Saving results...'}
-                </p>
-              )}
+                <SpeedGauge
+                  currentSpeed={state.currentSpeed}
+                  phase={state.phase}
+                  progress={state.progress}
+                />
+
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={handleButtonClick}
+                    className={`cyber-btn relative rounded-sm px-12 py-4 text-lg font-bold tracking-[0.2em] uppercase transition-all duration-300 clip-path-button ${
+                      buttonConfig.variant === 'danger'
+                        ? 'bg-red-600/80 text-white shadow-[0_0_20px_rgba(239,68,68,0.3),inset_0_0_20px_rgba(239,68,68,0.1)] hover:bg-red-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.5)]'
+                        : 'bg-transparent text-cyan-neon shadow-[0_0_20px_rgba(0,240,255,0.15),inset_0_0_20px_rgba(0,240,255,0.05)] border border-cyan-neon/40 hover:border-cyan-neon/80 hover:shadow-[0_0_30px_rgba(0,240,255,0.3)]'
+                    }`}
+                  >
+                    <span className="relative z-10">{buttonConfig.text}</span>
+                  </button>
+                </div>
+
+                {state.phase === 'complete' && results && (
+                  <div className="mt-8 animate-fade-in-up">
+                    <TestResults
+                      results={results}
+                      onComplete={handleTestComplete}
+                    />
+                  </div>
+                )}
+
+                {saving && (
+                  <p className="mt-4 text-center font-mono text-sm text-cyan-neon/60">
+                    {'> Saving results...'}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -203,7 +235,7 @@ export function SpeedTestDashboard() {
 
         {/* Footer accent */}
         <footer className="mt-12 text-center">
-          <div className="h-px w-32 mx-auto bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+          <div className="mx-auto h-px w-32 bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
           <p className="mt-4 font-mono text-xs text-slate-700">
             {'//'} powered by next.js {'//'} {new Date().getFullYear()}
           </p>

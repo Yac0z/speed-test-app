@@ -55,6 +55,13 @@
   100% { background-position: 200% 0; }
 }
 
+@keyframes data-stream {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
 .animate-cyber-glow {
   animation: cyber-glow 2s ease-in-out infinite;
 }
@@ -77,10 +84,14 @@
   animation: shimmer 3s linear infinite;
 }
 
+.clip-path-button {
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
 .cyber-card {
   position: relative;
-  background: var(--color-cyber-panel);
-  border: 1px solid var(--color-cyber-border);
+  background: rgba(10, 10, 30, 0.6);
+  border: 1px solid rgba(0, 240, 255, 0.08);
   border-radius: 0.75rem;
   backdrop-filter: blur(12px);
   overflow: hidden;
@@ -93,7 +104,7 @@
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), transparent, rgba(168, 85, 247, 0.3));
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), transparent 40%, transparent 60%, rgba(168, 85, 247, 0.15));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -102,9 +113,8 @@
 }
 
 .cyber-card:hover {
-  border-color: rgba(0, 240, 255, 0.4);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.1), inset 0 0 20px rgba(0, 240, 255, 0.05);
-  transform: translateY(-2px);
+  border-color: rgba(0, 240, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.05), inset 0 0 20px rgba(0, 240, 255, 0.02);
 }
 
 .cyber-btn {
@@ -150,4 +160,18 @@
   border-color: #00f0ff;
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
   outline: none;
+}
+
+/* Data stream decoration */
+.cyber-data-stream {
+  position: absolute;
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 240, 255, 0.3), transparent);
+  animation: data-stream 4s linear infinite;
+}
+
+/* Hexagon grid pattern */
+.cyber-hex-bg {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2300f0ff' fill-opacity='0.02'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
