@@ -101,7 +101,7 @@ export function SpeedTestDashboard() {
       <div className="fixed left-0 right-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-cyan-neon to-transparent" />
 
       {/* Scanline overlay */}
-      <div className="pointer-events-none fixed inset-0 z-10 opacity-[0.02]" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.1) 2px, rgba(0,240,255,0.1) 4px)' }} />
+      <div className="pointer-events-none fixed inset-0 z-10 opacity-[0.015]" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.08) 2px, rgba(0,240,255,0.08) 4px)' }} />
 
       <div className={`relative z-20 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 transition-all duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
         {/* Header */}
@@ -122,34 +122,49 @@ export function SpeedTestDashboard() {
         </header>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Test Area - Holographic Panel */}
+          {/* Main Test Area - Blended into theme */}
           <div className="lg:col-span-2">
             <div className="relative">
-              {/* Corner accents */}
-              <div className="pointer-events-none absolute -left-1 -top-1 z-30 h-6 w-6 border-l-2 border-t-2 border-cyan-neon/60" />
-              <div className="pointer-events-none absolute -right-1 -top-1 z-30 h-6 w-6 border-r-2 border-t-2 border-cyan-neon/60" />
-              <div className="pointer-events-none absolute -bottom-1 -left-1 z-30 h-6 w-6 border-b-2 border-l-2 border-cyan-neon/60" />
-              <div className="pointer-events-none absolute -bottom-1 -right-1 z-30 h-6 w-6 border-b-2 border-r-2 border-cyan-neon/60" />
+              {/* Corner brackets */}
+              <div className="pointer-events-none absolute -left-2 -top-2 z-30 h-8 w-8">
+                <div className="absolute left-0 top-0 h-px w-8 bg-gradient-to-r from-cyan-neon/60 to-transparent" />
+                <div className="absolute left-0 top-0 h-8 w-px bg-gradient-to-b from-cyan-neon/60 to-transparent" />
+              </div>
+              <div className="pointer-events-none absolute -right-2 -top-2 z-30 h-8 w-8">
+                <div className="absolute right-0 top-0 h-px w-8 bg-gradient-to-l from-cyan-neon/60 to-transparent" />
+                <div className="absolute right-0 top-0 h-8 w-px bg-gradient-to-b from-cyan-neon/60 to-transparent" />
+              </div>
+              <div className="pointer-events-none absolute -bottom-2 -left-2 z-30 h-8 w-8">
+                <div className="absolute bottom-0 left-0 h-px w-8 bg-gradient-to-r from-cyan-neon/60 to-transparent" />
+                <div className="absolute bottom-0 left-0 h-8 w-px bg-gradient-to-t from-cyan-neon/60 to-transparent" />
+              </div>
+              <div className="pointer-events-none absolute -bottom-2 -right-2 z-30 h-8 w-8">
+                <div className="absolute bottom-0 right-0 h-px w-8 bg-gradient-to-l from-cyan-neon/60 to-transparent" />
+                <div className="absolute bottom-0 right-0 h-8 w-px bg-gradient-to-t from-cyan-neon/60 to-transparent" />
+              </div>
 
-              {/* Panel background - more transparent, blends with background */}
-              <div className="relative rounded-xl border border-cyan-neon/10 bg-gradient-to-br from-cyan-neon/[0.02] via-transparent to-purple-neon/[0.02] p-6 backdrop-blur-sm">
-                {/* Inner glow during testing */}
+              {/* Panel - ultra transparent, blends with background */}
+              <div className="relative p-6">
+                {/* Subtle border frame */}
+                <div className="absolute inset-0 rounded-lg border border-cyan-neon/[0.06]" />
+
+                {/* Ambient glow during testing */}
                 {isTesting && (
-                  <div className="pointer-events-none absolute inset-0 rounded-xl bg-cyan-neon/[0.03] animate-neon-pulse" />
+                  <div className="absolute -inset-4 rounded-xl bg-cyan-neon/[0.02] blur-xl animate-neon-pulse" />
                 )}
 
-                {/* Top bar */}
-                <div className="mb-4 flex items-center justify-between border-b border-cyan-neon/10 pb-3">
-                  <div className="flex items-center gap-2">
-                    <div className={`h-1.5 w-1.5 rounded-full ${isTesting ? 'animate-pulse bg-cyan-neon' : 'bg-slate-700'}`} />
-                    <span className="font-mono text-[10px] tracking-widest text-slate-500 uppercase">
+                {/* Top status bar */}
+                <div className="relative mb-6 flex items-center justify-between border-b border-cyan-neon/[0.06] pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`h-1.5 w-1.5 rounded-full ${isTesting ? 'animate-pulse bg-cyan-neon shadow-[0_0_6px_#00f0ff]' : 'bg-slate-700'}`} />
+                    <span className="font-mono text-[10px] tracking-[0.15em] text-slate-500 uppercase">
                       {isTesting ? `>> ${state.phase}_phase` : '>> idle'}
                     </span>
                   </div>
-                  <div className="flex gap-1">
-                    <div className="h-1 w-8 rounded-full bg-cyan-neon/20" />
-                    <div className="h-1 w-4 rounded-full bg-cyan-neon/10" />
-                    <div className="h-1 w-2 rounded-full bg-cyan-neon/5" />
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-px w-6 bg-cyan-neon/10" />
+                    <div className="h-px w-3 bg-cyan-neon/5" />
+                    <span className="font-mono text-[9px] text-slate-700">{new Date().getFullYear()}</span>
                   </div>
                 </div>
 
@@ -163,10 +178,10 @@ export function SpeedTestDashboard() {
                   <button
                     type="button"
                     onClick={handleButtonClick}
-                    className={`cyber-btn relative rounded-sm px-12 py-4 text-lg font-bold tracking-[0.2em] uppercase transition-all duration-300 clip-path-button ${
+                    className={`cyber-btn relative rounded-sm px-14 py-4 text-lg font-bold tracking-[0.25em] uppercase transition-all duration-300 ${
                       buttonConfig.variant === 'danger'
-                        ? 'bg-red-600/80 text-white shadow-[0_0_20px_rgba(239,68,68,0.3),inset_0_0_20px_rgba(239,68,68,0.1)] hover:bg-red-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.5)]'
-                        : 'bg-transparent text-cyan-neon shadow-[0_0_20px_rgba(0,240,255,0.15),inset_0_0_20px_rgba(0,240,255,0.05)] border border-cyan-neon/40 hover:border-cyan-neon/80 hover:shadow-[0_0_30px_rgba(0,240,255,0.3)]'
+                        ? 'bg-red-600/60 text-white shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:bg-red-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.4)]'
+                        : 'bg-transparent text-cyan-neon shadow-[0_0_15px_rgba(0,240,255,0.1)] border border-cyan-neon/20 hover:border-cyan-neon/50 hover:shadow-[0_0_25px_rgba(0,240,255,0.25)]'
                     }`}
                   >
                     <span className="relative z-10">{buttonConfig.text}</span>
