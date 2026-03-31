@@ -13,12 +13,8 @@ function getStrokeColor(percentage: number): string {
 }
 
 function getSpeedUnit(speed: number): { value: number; unit: string } {
-  if (speed < 1) {
-    return { value: speed * 1000, unit: 'Kbps' };
-  }
-  if (speed >= 1000) {
-    return { value: speed / 1000, unit: 'Gbps' };
-  }
+  if (speed < 1) return { value: speed * 1000, unit: 'Kbps' };
+  if (speed >= 1000) return { value: speed / 1000, unit: 'Gbps' };
   return { value: speed, unit: 'Mbps' };
 }
 
@@ -47,58 +43,130 @@ export function SpeedGauge(props: SpeedGaugeProps) {
   const angle = (gaugePercentage / 100) * 180;
   const arcLength = Math.PI * 80;
 
+  const isTesting = phase === 'ping' || phase === 'download' || phase === 'upload';
+  const arcColor = isTesting ? '#00f0ff' : getStrokeColor(gaugePercentage);
+
   const phaseLabels = {
-    idle: 'Ready',
-    ping: 'Testing Ping...',
-    download: 'Testing Download...',
-    upload: 'Testing Upload...',
-    complete: 'Test Complete',
+    idle: 'SYSTEM READY',
+    ping: 'MEASURING LATENCY...',
+    download: 'DOWNLOADING DATA...',
+    upload: 'UPLOADING DATA...',
+    complete: 'TEST COMPLETE',
   };
 
   return (
     <div className="flex flex-col items-center">
-      <div className="mb-4 text-sm font-medium text-slate-400">
-        {phaseLabels[phase]}
+      {/* Phase indicator with cyber styling */}
+      <div className="mb-6 flex items-center gap-3">
+        {isTesting && (
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-neon opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-neon" />
+          </span>
+        )}
+        <span className={`font-mono text-xs tracking-widest uppercase transition-colors ${isTesting ? 'text-cyan-neon' : 'text-slate-500'}`}>
+          {phaseLabels[phase]}
+        </span>
       </div>
 
+      {/* SVG Gauge */}
       <div className="relative h-64 w-64 sm:h-80 sm:w-80">
+        {/* Outer glow ring */}
+        <div className={`absolute inset-0 rounded-full transition-opacity duration-500 ${isTesting ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="absolute inset-4 rounded-full border border-cyan-neon/10 blur-sm" />
+        </div>
+
         <svg
           viewBox="0 0 200 120"
-          className="h-full w-full"
+          className="relative z-10 h-full w-full"
           aria-label={`Speed gauge showing ${displayValue.toFixed(1)} ${displayUnit}`}
         >
-          {/* Background arc */}
+          {/* Defs for glow filter */}
+          <defs>
+            <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <linearGradient id="arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#00f0ff" />
+              <stop offset="50%" stopColor="#a855f7" />
+              <stop offset="100%" stopColor="#22c55e" />
+            </linearGradient>
+          </defs>
+
+          {/* Background arc - dark */}
           <path
             d="M 20 100 A 80 80 0 0 1 180 100"
             fill="none"
-            stroke="#334155"
-            strokeWidth="12"
+            stroke="#1a1a3e"
+            strokeWidth="10"
             strokeLinecap="round"
           />
 
-          {/* Progress arc */}
+          {/* Background arc - subtle border */}
+          <path
+            d="M 20 100 A 80 80 0 0 1 180 100"
+            fill="none"
+            stroke="#2d2d5e"
+            strokeWidth="12"
+            strokeLinecap="round"
+            opacity="0.5"
+          />
+
+          {/* Progress arc with glow */}
           {gaugePercentage > 0 && (
-            <path
-              d="M 20 100 A 80 80 0 0 1 180 100"
-              fill="none"
-              stroke={getStrokeColor(gaugePercentage)}
-              strokeWidth="12"
-              strokeLinecap="round"
-              strokeDasharray={`${(angle / 180) * arcLength} ${arcLength}`}
-              className="transition-all duration-150"
-            />
+            <>
+              {/* Glow layer */}
+              <path
+                d="M 20 100 A 80 80 0 0 1 180 100"
+                fill="none"
+                stroke={arcColor}
+                strokeWidth="16"
+                strokeLinecap="round"
+                strokeDasharray={`${(angle / 180) * arcLength} ${arcLength}`}
+                opacity="0.3"
+                filter="url(#neon-glow)"
+                className="transition-all duration-150"
+              />
+              {/* Main arc */}
+              <path
+                d="M 20 100 A 80 80 0 0 1 180 100"
+                fill="none"
+                stroke={isTesting ? 'url(#arc-gradient)' : arcColor}
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={`${(angle / 180) * arcLength} ${arcLength}`}
+                className="transition-all duration-150"
+              />
+              {/* Bright center line */}
+              <path
+                d="M 20 100 A 80 80 0 0 1 180 100"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeDasharray={`${(angle / 180) * arcLength} ${arcLength}`}
+                opacity="0.6"
+                className="transition-all duration-150"
+              />
+            </>
           )}
 
           {/* Tick marks */}
           {Array.from({ length: 11 }, (_, i) => {
             const tickAngle = (i / 10) * 180;
             const rad = ((tickAngle - 180) * Math.PI) / 180;
-            const innerR = 68;
+            const innerR = i % 5 === 0 ? 62 : 66;
             const outerR = 74;
             const x1 = 100 + innerR * Math.cos(rad);
             const y1 = 100 + innerR * Math.sin(rad);
             const x2 = 100 + outerR * Math.cos(rad);
             const y2 = 100 + outerR * Math.sin(rad);
+            const isMajor = i % 5 === 0;
             return (
               <line
                 key={i}
@@ -106,48 +174,61 @@ export function SpeedGauge(props: SpeedGaugeProps) {
                 y1={y1}
                 x2={x2}
                 y2={y2}
-                stroke="#64748b"
-                strokeWidth="1"
+                stroke={isMajor ? '#00f0ff' : '#334155'}
+                strokeWidth={isMajor ? 1.5 : 0.5}
+                opacity={isMajor ? 0.8 : 0.4}
               />
             );
           })}
 
           {/* Scale labels */}
           <text
-            x="18"
-            y="115"
+            x="16"
+            y="116"
             textAnchor="middle"
-            className="fill-slate-500"
-            style={{ fontSize: '10px' }}
+            fill="#475569"
+            style={{ fontSize: '9px', fontFamily: 'monospace' }}
           >
             0
           </text>
           <text
-            x="182"
-            y="115"
+            x="184"
+            y="116"
             textAnchor="middle"
-            className="fill-slate-500"
-            style={{ fontSize: '10px' }}
+            fill="#475569"
+            style={{ fontSize: '9px', fontFamily: 'monospace' }}
           >
             {gaugeMax >= 1000 ? `${gaugeMax / 1000}G` : gaugeMax}
           </text>
 
-          {/* Speed value */}
+          {/* Speed value with glow */}
           <text
             x="100"
-            y="78"
+            y="72"
             textAnchor="middle"
-            className="fill-white"
-            style={{ fontSize: '32px', fontWeight: 'bold' }}
+            fill="white"
+            style={{ fontSize: '36px', fontWeight: 'bold', fontFamily: 'monospace' }}
+            filter="url(#neon-glow)"
+            opacity="0.2"
           >
             {displayValue.toFixed(1)}
           </text>
           <text
             x="100"
-            y="98"
+            y="72"
             textAnchor="middle"
-            className="fill-slate-400"
-            style={{ fontSize: '14px' }}
+            fill="white"
+            style={{ fontSize: '36px', fontWeight: 'bold', fontFamily: 'monospace' }}
+          >
+            {displayValue.toFixed(1)}
+          </text>
+          <text
+            x="100"
+            y="94"
+            textAnchor="middle"
+            fill="#00f0ff"
+            opacity="0.8"
+            style={{ fontSize: '12px', fontFamily: 'monospace', letterSpacing: '2px' }}
           >
             {displayUnit}
           </text>
@@ -156,12 +237,19 @@ export function SpeedGauge(props: SpeedGaugeProps) {
 
       {/* Progress bar */}
       {(phase === 'ping' || phase === 'download' || phase === 'upload') && (
-        <div className="mt-4 w-full max-w-xs">
-          <div className="h-1.5 overflow-hidden rounded-full bg-slate-700">
+        <div className="mt-6 w-full max-w-xs">
+          <div className="relative h-1 overflow-hidden rounded-full bg-slate-800">
             <div
-              className="h-full rounded-full bg-blue-500 transition-all duration-300"
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-cyan-neon via-purple-neon to-green-neon transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 animate-shimmer" />
+          </div>
+          <div className="mt-2 flex justify-between font-mono text-[10px] text-slate-600">
+            <span>PING</span>
+            <span>DOWNLOAD</span>
+            <span>UPLOAD</span>
           </div>
         </div>
       )}

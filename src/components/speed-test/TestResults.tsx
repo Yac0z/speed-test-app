@@ -3,6 +3,14 @@
 import { useState } from 'react';
 import { ShareModal } from '@/components/share/ShareModal';
 
+type MetricCard = {
+  label: string;
+  value: string;
+  unit: string;
+  color: string;
+  icon: string;
+};
+
 type TestResultsProps = {
   results: {
     download: number;
@@ -18,42 +26,46 @@ export function TestResults(props: TestResultsProps) {
   const { results } = props;
   const [showShare, setShowShare] = useState(false);
 
+  const metrics: MetricCard[] = [
+    { label: 'DOWNLOAD', value: results.download.toFixed(1), unit: 'Mbps', color: 'from-green-500/20 to-green-500/5 border-green-500/30', icon: '↓' },
+    { label: 'UPLOAD', value: results.upload.toFixed(1), unit: 'Mbps', color: 'from-blue-500/20 to-blue-500/5 border-blue-500/30', icon: '↑' },
+    { label: 'PING', value: results.ping.toFixed(0), unit: 'ms', color: 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/30', icon: '◉' },
+    { label: 'JITTER', value: results.jitter.toFixed(1), unit: 'ms', color: 'from-purple-500/20 to-purple-500/5 border-purple-500/30', icon: '〰' },
+  ];
+
   return (
     <>
-      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-xl bg-slate-700/30 p-4 text-center">
-          <div className="text-2xl font-bold text-green-400">
-            {results.download.toFixed(1)}
-          </div>
-          <div className="text-xs text-slate-400">Download Mbps</div>
+      <div className="mt-6">
+        <div className="mb-4 font-mono text-xs text-cyan-neon/60 uppercase tracking-wider">
+          {'>'} Test Results
         </div>
-        <div className="rounded-xl bg-slate-700/30 p-4 text-center">
-          <div className="text-2xl font-bold text-blue-400">
-            {results.upload.toFixed(1)}
-          </div>
-          <div className="text-xs text-slate-400">Upload Mbps</div>
-        </div>
-        <div className="rounded-xl bg-slate-700/30 p-4 text-center">
-          <div className="text-2xl font-bold text-yellow-400">
-            {results.ping.toFixed(0)}
-          </div>
-          <div className="text-xs text-slate-400">Ping ms</div>
-        </div>
-        <div className="rounded-xl bg-slate-700/30 p-4 text-center">
-          <div className="text-2xl font-bold text-purple-400">
-            {results.jitter.toFixed(1)}
-          </div>
-          <div className="text-xs text-slate-400">Jitter ms</div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {metrics.map((metric, i) => (
+            <div
+              key={metric.label}
+              className={`cyber-card rounded-xl bg-gradient-to-br p-4 text-center transition-all duration-500 ${metric.color}`}
+              style={{ animationDelay: `${i * 0.1}s` }}
+            >
+              <div className="mb-1 text-lg opacity-60">{metric.icon}</div>
+              <div className="font-mono text-2xl font-bold text-white sm:text-3xl">
+                {metric.value}
+              </div>
+              <div className="mt-1 font-mono text-[10px] tracking-wider text-slate-400 uppercase">
+                {metric.label}
+              </div>
+              <div className="mt-0.5 font-mono text-[10px] text-slate-600">
+                {metric.unit}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
       <div className="mt-6 flex justify-center">
         <button
           type="button"
-          onClick={() => {
-            setShowShare(true);
-          }}
-          className="rounded-lg bg-slate-700/50 px-6 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-600/50 hover:text-white"
+          onClick={() => setShowShare(true)}
+          className="cyber-btn rounded-lg border border-cyan-neon/20 bg-cyan-neon/5 px-6 py-2.5 font-mono text-sm tracking-wider text-cyan-neon/80 uppercase transition-all hover:border-cyan-neon/40 hover:bg-cyan-neon/10 hover:text-cyan-neon"
         >
           Share Results
         </button>
@@ -67,9 +79,7 @@ export function TestResults(props: TestResultsProps) {
             ping: results.ping,
             jitter: results.jitter,
           }}
-          onClose={() => {
-            setShowShare(false);
-          }}
+          onClose={() => setShowShare(false)}
         />
       )}
     </>
