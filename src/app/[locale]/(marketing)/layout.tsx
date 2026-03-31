@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { CyberNavLink } from '@/components/CyberNavLink';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
-import { Link } from '@/libs/I18nNavigation';
 import { BaseTemplate } from '@/templates/BaseTemplate';
 
 export default async function Layout(props: {
@@ -18,38 +18,10 @@ export default async function Layout(props: {
     <BaseTemplate
       leftNav={
         <>
-          <li>
-            <Link
-              href="/"
-              className="border-none text-gray-700 hover:text-gray-900"
-            >
-              {t('home_link')}
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/history/"
-              className="border-none text-gray-700 hover:text-gray-900"
-            >
-              {t('history_link')}
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/servers/"
-              className="border-none text-gray-700 hover:text-gray-900"
-            >
-              {t('servers_link')}
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/settings/"
-              className="border-none text-gray-700 hover:text-gray-900"
-            >
-              {t('settings_link')}
-            </Link>
-          </li>
+          <li><CyberNavLink href="/">{t('home_link')}</CyberNavLink></li>
+          <li><CyberNavLink href="/history/">{t('history_link')}</CyberNavLink></li>
+          <li><CyberNavLink href="/servers/">{t('servers_link')}</CyberNavLink></li>
+          <li><CyberNavLink href="/settings/">{t('settings_link')}</CyberNavLink></li>
         </>
       }
       rightNav={
