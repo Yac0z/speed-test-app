@@ -1,5 +1,4 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { DemoBanner } from '@/components/DemoBanner';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { Link } from '@/libs/I18nNavigation';
 import { BaseTemplate } from '@/templates/BaseTemplate';
@@ -16,53 +15,50 @@ export default async function Layout(props: {
   });
 
   return (
-    <>
-      <DemoBanner />
-      <BaseTemplate
-        leftNav={
-          <>
-            <li>
-              <Link
-                href="/"
-                className="border-none text-gray-700 hover:text-gray-900"
-              >
-                {t('home_link')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/history/"
-                className="border-none text-gray-700 hover:text-gray-900"
-              >
-                {t('history_link')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/servers/"
-                className="border-none text-gray-700 hover:text-gray-900"
-              >
-                {t('servers_link')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/settings/"
-                className="border-none text-gray-700 hover:text-gray-900"
-              >
-                {t('settings_link')}
-              </Link>
-            </li>
-          </>
-        }
-        rightNav={
+    <BaseTemplate
+      leftNav={
+        <>
           <li>
-            <LocaleSwitcher />
+            <Link
+              href="/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('home_link')}
+            </Link>
           </li>
-        }
-      >
-        <div className="py-5 text-xl [&_p]:my-6">{props.children}</div>
-      </BaseTemplate>
-    </>
+          <li>
+            <Link
+              href="/history/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('history_link')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/servers/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('servers_link')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/settings/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('settings_link')}
+            </Link>
+          </li>
+        </>
+      }
+      rightNav={
+        <li>
+          <LocaleSwitcher />
+        </li>
+      }
+    >
+      <div className="py-5 text-xl [&_p]:my-6">{props.children}</div>
+    </BaseTemplate>
   );
 }

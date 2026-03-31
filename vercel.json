@@ -1,11 +1,5 @@
 {
-  "version": 2,
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    }
-  ],
+  "buildCommand": "next build",
   "env": {
     "NEXT_TELEMETRY_DISABLED": "1",
     "NEXT_PUBLIC_LOGGING_LEVEL": "info"

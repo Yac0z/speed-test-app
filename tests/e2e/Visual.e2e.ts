@@ -9,7 +9,7 @@ test.describe('Visual testing', () => {
 
       await expect(
         page.getByRole('heading', {
-          name: 'Boilerplate Code for Your Next.js Project with Tailwind CSS',
+          name: 'Speed Test',
         })
       ).toBeVisible();
 
@@ -57,7 +57,7 @@ test.describe('Visual testing', () => {
 
       await expect(
         page.getByRole('heading', {
-          name: 'Code de démarrage pour Next.js avec Tailwind CSS',
+          name: 'Test de vitesse internet',
         })
       ).toBeVisible();
 
