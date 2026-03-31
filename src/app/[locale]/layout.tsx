@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import type { Metadata, Viewport } from 'next';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
@@ -59,6 +60,7 @@ export default async function RootLayout(props: {
           {props.children}
 
           <DemoBadge />
+          <Analytics />
         </NextIntlClientProvider>
       </body>
     </html>

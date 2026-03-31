@@ -37,6 +37,7 @@
     "@logtape/logtape": "^2.0.4",
     "@sentry/nextjs": "^10.45.0",
     "@t3-oss/env-nextjs": "^0.13.10",
+    "@vercel/analytics": "^2.0.1",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.1",
     "html-to-image": "^1.11.13",
