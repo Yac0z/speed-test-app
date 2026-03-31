@@ -127,7 +127,15 @@ Results are calculated using median of samples with outlier removal for accuracy
 
 ### Vercel (Recommended)
 
+This application is optimized for Vercel deployment. A `vercel.json` configuration file is included for proper routing and build settings.
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Yac0z/speed-test-app)
+
+#### Manual Vercel CLI Deployment
+1. Install Vercel CLI: `npm i -g vercel`
+2. Login: `vercel login`
+3. Deploy: `vercel` (follow prompts)
+4. Set required environment variables in Vercel dashboard
 
 ### Docker
 
