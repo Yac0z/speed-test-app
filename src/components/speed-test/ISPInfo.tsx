@@ -20,7 +20,7 @@ export function ISPInfo() {
     async function loadISPData() {
       try {
         const response = await fetch(
-          'http://ip-api.com/json/?fields=status,message,country,regionName,city,isp,org,as,query'
+          'https://ip-api.com/json/?fields=status,message,country,regionName,city,isp,org,as,query'
         );
         const data = await response.json();
         if (data.status === 'success' && !cancelled) {
