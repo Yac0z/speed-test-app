@@ -16,6 +16,12 @@ function getSpeedUnit(speed: number): { value: number; unit: string } {
   return { value: speed, unit: 'Mbps' };
 }
 
+function getPingDisplay(pingMs: number): { value: string; unit: string } {
+  if (pingMs < 1) return { value: (pingMs * 1000).toFixed(0), unit: 'μs' };
+  if (pingMs >= 1000) return { value: (pingMs / 1000).toFixed(1), unit: 's' };
+  return { value: pingMs.toFixed(0), unit: 'ms' };
+}
+
 function getGaugeMax(speed: number): number {
   if (speed <= 0) return 100;
   if (speed <= 10) return 10;
@@ -28,12 +34,44 @@ function getGaugeMax(speed: number): number {
   return Math.ceil(speed / 1000) * 1000;
 }
 
+function getPingGaugeMax(pingMs: number): number {
+  if (pingMs <= 0) return 50;
+  if (pingMs <= 5) return 5;
+  if (pingMs <= 10) return 10;
+  if (pingMs <= 20) return 20;
+  if (pingMs <= 50) return 50;
+  if (pingMs <= 100) return 100;
+  if (pingMs <= 200) return 200;
+  if (pingMs <= 500) return 500;
+  return Math.ceil(pingMs / 100) * 100;
+}
+
 export function SpeedGauge(props: SpeedGaugeProps) {
   const { currentSpeed, phase, progress } = props;
 
-  const { value: displayValue, unit: displayUnit } = getSpeedUnit(currentSpeed);
-  const gaugeMax = getGaugeMax(currentSpeed);
-  const gaugePercentage = Math.min((currentSpeed / gaugeMax) * 100, 100);
+  const isPing = phase === 'ping';
+  const { displayValue, displayUnit, gaugeMax, gaugePercentage } = isPing
+    ? (() => {
+        const { value, unit } = getPingDisplay(currentSpeed);
+        const max = getPingGaugeMax(currentSpeed);
+        return {
+          displayValue: value,
+          displayUnit: unit,
+          gaugeMax: max,
+          gaugePercentage: Math.min((currentSpeed / max) * 100, 100),
+        };
+      })()
+    : (() => {
+        const { value, unit } = getSpeedUnit(currentSpeed);
+        const max = getGaugeMax(currentSpeed);
+        return {
+          displayValue: value.toFixed(1),
+          displayUnit: unit,
+          gaugeMax: max,
+          gaugePercentage: Math.min((currentSpeed / max) * 100, 100),
+        };
+      })();
+
   const angle = (gaugePercentage / 100) * 180;
   const arcLength = Math.PI * 80;
 
@@ -73,7 +111,7 @@ export function SpeedGauge(props: SpeedGaugeProps) {
         <svg
           viewBox="0 0 200 120"
           className="relative z-10 h-full w-full"
-          aria-label={`Speed gauge showing ${displayValue.toFixed(1)} ${displayUnit}`}
+          aria-label={`Speed gauge showing ${displayValue} ${displayUnit}`}
         >
           {/* Defs for glow filter */}
           <defs>
@@ -192,7 +230,13 @@ export function SpeedGauge(props: SpeedGaugeProps) {
             fill="#475569"
             style={{ fontSize: '9px', fontFamily: 'monospace' }}
           >
-            {gaugeMax >= 1000 ? `${gaugeMax / 1000}G` : gaugeMax}
+            {isPing
+              ? gaugeMax >= 1000
+                ? `${gaugeMax / 1000}s`
+                : `${gaugeMax}ms`
+              : gaugeMax >= 1000
+                ? `${gaugeMax / 1000}G`
+                : gaugeMax}
           </text>
 
           {/* Speed value with glow */}
@@ -205,7 +249,7 @@ export function SpeedGauge(props: SpeedGaugeProps) {
             filter="url(#neon-glow)"
             opacity="0.2"
           >
-            {displayValue.toFixed(1)}
+            {displayValue}
           </text>
           <text
             x="100"
@@ -214,7 +258,7 @@ export function SpeedGauge(props: SpeedGaugeProps) {
             fill="white"
             style={{ fontSize: '36px', fontWeight: 'bold', fontFamily: 'monospace' }}
           >
-            {displayValue.toFixed(1)}
+            {displayValue}
           </text>
           <text
             x="100"

@@ -19,19 +19,10 @@ export function ISPInfo() {
 
     async function loadISPData() {
       try {
-        const response = await fetch(
-          'https://ip-api.com/json/?fields=status,message,country,regionName,city,isp,org,as,query'
-        );
-        const data = await response.json();
-        if (data.status === 'success' && !cancelled) {
-          setIspData({
-            ip: data.query,
-            org: data.org ?? data.isp,
-            city: data.city,
-            region: data.regionName,
-            country: data.country,
-          });
-        }
+        const response = await fetch('/api/isp', { cache: 'no-store' });
+        if (!response.ok) return;
+        const data: ISPData = await response.json();
+        if (!cancelled) setIspData(data);
       } catch {
         // Silently fail
       } finally {
