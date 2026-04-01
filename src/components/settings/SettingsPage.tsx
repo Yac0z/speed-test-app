@@ -17,38 +17,122 @@ const DEFAULT_SETTINGS: Settings = {
   dataRetentionDays: 90,
 };
 
+function CyberSlider(props: {
+  id: string;
+  min: number;
+  max: number;
+  step?: number;
+  value: number;
+  label: string;
+  unit: string;
+  minLabel: string;
+  maxLabel: string;
+  onChange: (value: number) => void;
+}) {
+  const { id, min, max, step = 1, value, label, unit, minLabel, maxLabel, onChange } = props;
+  const percentage = ((value - min) / (max - min)) * 100;
+
+  return (
+    <div>
+      <label htmlFor={id} className="mb-3 flex items-center justify-between text-sm font-mono text-slate-400">
+        <span>{label}</span>
+        <span className="text-cyan-neon/80">
+          {value}
+          <span className="ml-1 text-xs text-slate-600">{unit}</span>
+        </span>
+      </label>
+      <div className="relative">
+        {/* Track background */}
+        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+          {/* Fill */}
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-cyan-neon/60 to-cyan-neon/80 transition-all duration-150"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+        {/* Range input (invisible but interactive) */}
+        <input
+          id={id}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          aria-label={label}
+        />
+        {/* Thumb indicator */}
+        <div
+          className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-cyan-neon bg-cyber-dark shadow-[0_0_8px_rgba(0,240,255,0.4)] transition-all duration-150"
+          style={{ left: `${percentage}%` }}
+        />
+      </div>
+      <div className="mt-2 flex justify-between font-mono text-[10px] text-slate-600">
+        <span>{minLabel}</span>
+        <span>{maxLabel}</span>
+      </div>
+    </div>
+  );
+}
+
+function ThemeToggle(props: { theme: Theme; setTheme: (theme: Theme) => void }) {
+  const { theme, setTheme } = props;
+  const options: { value: Theme; label: string; icon: string }[] = [
+    { value: 'dark', label: 'Dark', icon: '◐' },
+    { value: 'light', label: 'Light', icon: '◑' },
+    { value: 'system', label: 'Auto', icon: '⚙' },
+  ];
+
+  return (
+    <div className="flex gap-2">
+      {options.map((option) => {
+        const isActive = theme === option.value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => setTheme(option.value)}
+            className={`group/theme relative flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-mono tracking-wider uppercase transition-all duration-300 ${
+              isActive
+                ? 'bg-cyan-neon/10 text-cyan-neon border border-cyan-neon/40 shadow-[0_0_12px_rgba(0,240,255,0.15)]'
+                : 'bg-slate-900/50 text-slate-500 border border-slate-800/50 hover:border-cyan-neon/20 hover:text-slate-400'
+            }`}
+          >
+            <span className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover/theme:scale-105'}`}>
+              {option.icon}
+            </span>
+            <span>{option.label}</span>
+            {isActive && (
+              <span className="absolute -bottom-px left-1/2 h-px w-6 -translate-x-1/2 bg-cyan-neon/60" />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function SettingsPage() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
-  const [clearingHistory, setClearingHistory] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
-
-  const bgClass = resolvedTheme === 'dark'
-    ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900'
-    : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100';
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const stored = localStorage.getItem('speed-test-settings');
     if (stored) {
       try {
         const parsed: unknown = JSON.parse(stored);
         if (typeof parsed === 'object' && parsed !== null) {
-          const record = parsed;
+          const record = parsed as Record<string, unknown>;
           setSettings({
             ...DEFAULT_SETTINGS,
-            ...('testDuration' in record &&
-              typeof record.testDuration === 'number' && {
-                testDuration: record.testDuration,
-              }),
-            ...('parallelConnections' in record &&
-              typeof record.parallelConnections === 'number' && {
-                parallelConnections: record.parallelConnections,
-              }),
-            ...('dataRetentionDays' in record &&
-              typeof record.dataRetentionDays === 'number' && {
-                dataRetentionDays: record.dataRetentionDays,
-              }),
+            ...('testDuration' in record && typeof record.testDuration === 'number' ? { testDuration: record.testDuration } : {}),
+            ...('parallelConnections' in record && typeof record.parallelConnections === 'number' ? { parallelConnections: record.parallelConnections } : {}),
+            ...('dataRetentionDays' in record && typeof record.dataRetentionDays === 'number' ? { dataRetentionDays: record.dataRetentionDays } : {}),
           });
         }
       } catch {
@@ -60,181 +144,136 @@ export function SettingsPage() {
   const saveSettings = useCallback(() => {
     localStorage.setItem('speed-test-settings', JSON.stringify(settings));
     setSaveStatus('saved');
-    setTimeout(() => {
-      setSaveStatus('idle');
-    }, 2000);
+    setTimeout(() => setSaveStatus('idle'), 2000);
   }, [settings]);
 
-  const clearHistory = useCallback(async () => {
-    setClearingHistory(true);
-    try {
-      await fetch('/api/results', { method: 'DELETE' });
-      localStorage.removeItem('speed-test-history');
-    } catch {
-      // Silently fail
-    } finally {
-      setClearingHistory(false);
-      setConfirmClear(false);
-    }
+  const clearHistory = useCallback(() => {
+    localStorage.removeItem('speed-test-history');
+    setConfirmClear(false);
   }, []);
 
-  const updateSetting = <K extends keyof Settings>(
-    key: K,
-    value: Settings[K]
-  ) => {
+  const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-cyber-dark p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-2xl animate-pulse space-y-6">
+          <div className="h-8 w-32 rounded bg-slate-800" />
+          <div className="h-32 rounded-xl bg-slate-800/50" />
+          <div className="h-48 rounded-xl bg-slate-800/50" />
+          <div className="h-40 rounded-xl bg-slate-800/50" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`min-h-screen ${bgClass} p-4 sm:p-6 lg:p-8`}>
+    <div className="min-h-screen bg-cyber-dark p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white sm:text-3xl">
-            Settings
+        {/* Header */}
+        <div className="mb-8">
+          <div className="mb-2 flex items-center gap-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-cyan-neon/60" />
+            <span className="font-mono text-[10px] tracking-[0.2em] text-cyan-neon/40 uppercase">
+              Configuration
+            </span>
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            <span className="cyber-text-glow text-cyan-neon">SETTINGS</span>
           </h1>
-          <p className="mt-1 text-slate-400">
-            Configure your speed test preferences
+          <p className="mt-1 font-mono text-sm text-slate-600">
+            // customize your speed test experience
           </p>
         </div>
 
         <div className="space-y-6">
           {/* Appearance */}
-          <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-6 backdrop-blur-sm">
-            <h2 className="mb-4 text-lg font-semibold text-white">
-              Appearance
-            </h2>
-            <fieldset>
-              <legend className="mb-2 block text-sm text-slate-400">
-                Theme
-              </legend>
-              <div className="flex gap-2">
-                {(['light', 'dark', 'system'] as Theme[]).map((themeOption) => (
-                  <button
-                    key={themeOption}
-                    type="button"
-                    onClick={() => {
-                      setTheme(themeOption);
-                    }}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium capitalize transition-colors ${
-                      theme === themeOption
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-slate-700/50 text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {themeOption}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
+          <div className="cyber-card p-6">
+            <div className="mb-4 flex items-center gap-2">
+              <span className="text-cyan-neon/60">{'>'}</span>
+              <h2 className="font-mono text-sm font-semibold tracking-wider text-cyan-neon/80 uppercase">
+                Appearance
+              </h2>
+            </div>
+            <ThemeToggle theme={theme} setTheme={setTheme} />
           </div>
 
           {/* Test Settings */}
-          <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-6 backdrop-blur-sm">
-            <h2 className="mb-4 text-lg font-semibold text-white">
-              Test Settings
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="testDuration"
-                  className="mb-2 block text-sm text-slate-400"
-                >
-                  Test Duration: {settings.testDuration} seconds
-                </label>
-                <input
-                  id="testDuration"
-                  type="range"
-                  min="5"
-                  max="30"
-                  step="5"
-                  value={settings.testDuration}
-                  onChange={(e) => {
-                    updateSetting('testDuration', Number(e.target.value));
-                  }}
-                  className="w-full accent-blue-500"
-                />
-                <div className="mt-1 flex justify-between text-xs text-slate-500">
-                  <span>5s</span>
-                  <span>30s</span>
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="parallelConnections"
-                  className="mb-2 block text-sm text-slate-400"
-                >
-                  Parallel Connections: {settings.parallelConnections}
-                </label>
-                <input
-                  id="parallelConnections"
-                  type="range"
-                  min="1"
-                  max="8"
-                  value={settings.parallelConnections}
-                  onChange={(e) => {
-                    updateSetting(
-                      'parallelConnections',
-                      Number(e.target.value)
-                    );
-                  }}
-                  className="w-full accent-blue-500"
-                />
-                <div className="mt-1 flex justify-between text-xs text-slate-500">
-                  <span>1</span>
-                  <span>8</span>
-                </div>
-              </div>
+          <div className="cyber-card p-6">
+            <div className="mb-6 flex items-center gap-2">
+              <span className="text-cyan-neon/60">{'>'}</span>
+              <h2 className="font-mono text-sm font-semibold tracking-wider text-cyan-neon/80 uppercase">
+                Test Parameters
+              </h2>
+            </div>
+            <div className="space-y-8">
+              <CyberSlider
+                id="testDuration"
+                min={5}
+                max={30}
+                step={5}
+                value={settings.testDuration}
+                label="Test Duration"
+                unit="s"
+                minLabel="5s (quick)"
+                maxLabel="30s (thorough)"
+                onChange={(v) => updateSetting('testDuration', v)}
+              />
+              <CyberSlider
+                id="parallelConnections"
+                min={1}
+                max={8}
+                value={settings.parallelConnections}
+                label="Parallel Connections"
+                unit=""
+                minLabel="1 (conservative)"
+                maxLabel="8 (aggressive)"
+                onChange={(v) => updateSetting('parallelConnections', v)}
+              />
             </div>
           </div>
 
           {/* Data */}
-          <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-6 backdrop-blur-sm">
-            <h2 className="mb-4 text-lg font-semibold text-white">Data</h2>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="dataRetention"
-                  className="mb-2 block text-sm text-slate-400"
-                >
-                  Data Retention: {settings.dataRetentionDays} days
-                </label>
-                <input
-                  id="dataRetention"
-                  type="range"
-                  min="7"
-                  max="365"
-                  step="7"
-                  value={settings.dataRetentionDays}
-                  onChange={(e) => {
-                    updateSetting('dataRetentionDays', Number(e.target.value));
-                  }}
-                  className="w-full accent-blue-500"
-                />
-                <div className="mt-1 flex justify-between text-xs text-slate-500">
-                  <span>7 days</span>
-                  <span>1 year</span>
-                </div>
-              </div>
+          <div className="cyber-card p-6">
+            <div className="mb-6 flex items-center gap-2">
+              <span className="text-cyan-neon/60">{'>'}</span>
+              <h2 className="font-mono text-sm font-semibold tracking-wider text-cyan-neon/80 uppercase">
+                Data Management
+              </h2>
+            </div>
+            <div className="space-y-6">
+              <CyberSlider
+                id="dataRetention"
+                min={7}
+                max={365}
+                step={7}
+                value={settings.dataRetentionDays}
+                label="Data Retention"
+                unit="d"
+                minLabel="7 days"
+                maxLabel="1 year"
+                onChange={(v) => updateSetting('dataRetentionDays', v)}
+              />
 
-              <div className="pt-4">
+              <div className="border-t border-cyan-neon/10 pt-4">
                 {confirmClear ? (
-                  <div className="flex items-center gap-3">
-                    <p className="text-sm text-red-400">Are you sure?</p>
+                  <div className="flex items-center gap-4">
+                    <span className="font-mono text-sm text-red-400/80">
+                      {'> Confirm deletion of all history?'}
+                    </span>
                     <button
                       type="button"
                       onClick={clearHistory}
-                      disabled={clearingHistory}
-                      className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-500 disabled:opacity-50"
+                      className="rounded-sm border border-red-500/40 bg-red-500/10 px-4 py-2 font-mono text-xs tracking-wider text-red-400 uppercase transition-all hover:bg-red-500/20 hover:border-red-500/60"
                     >
-                      {clearingHistory ? 'Clearing...' : 'Yes, Clear'}
+                      Confirm
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        setConfirmClear(false);
-                      }}
-                      className="rounded-lg bg-slate-700 px-3 py-1.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-600"
+                      onClick={() => setConfirmClear(false)}
+                      className="rounded-sm border border-slate-700/50 bg-slate-900/50 px-4 py-2 font-mono text-xs tracking-wider text-slate-500 uppercase transition-all hover:border-slate-600 hover:text-slate-400"
                     >
                       Cancel
                     </button>
@@ -242,12 +281,10 @@ export function SettingsPage() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => {
-                      setConfirmClear(true);
-                    }}
-                    className="rounded-lg bg-red-600/20 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-600/30"
+                    onClick={() => setConfirmClear(true)}
+                    className="rounded-sm border border-red-500/20 bg-red-500/5 px-4 py-2.5 font-mono text-xs tracking-wider text-red-400/60 uppercase transition-all hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400"
                   >
-                    Clear All History
+                    {'>'} Clear All History
                   </button>
                 )}
               </div>
@@ -259,9 +296,21 @@ export function SettingsPage() {
             <button
               type="button"
               onClick={saveSettings}
-              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-500 active:scale-95"
+              className={`cyber-btn relative rounded-sm px-8 py-3 font-mono text-sm font-bold tracking-[0.2em] uppercase transition-all duration-300 ${
+                saveStatus === 'saved'
+                  ? 'bg-green-neon/10 text-green-neon border border-green-neon/40 shadow-[0_0_20px_rgba(34,197,94,0.2)]'
+                  : 'bg-cyan-neon/10 text-cyan-neon border border-cyan-neon/30 shadow-[0_0_20px_rgba(0,240,255,0.15)] hover:bg-cyan-neon/20 hover:border-cyan-neon/60 hover:shadow-[0_0_30px_rgba(0,240,255,0.3)]'
+              }`}
             >
-              {saveStatus === 'saved' ? 'Saved!' : 'Save Settings'}
+              {/* Corner accents */}
+              <span className="absolute -left-1 -top-1 h-2.5 w-2.5 border-l border-t border-current opacity-40" />
+              <span className="absolute -right-1 -top-1 h-2.5 w-2.5 border-r border-t border-current opacity-40" />
+              <span className="absolute -bottom-1 -left-1 h-2.5 w-2.5 border-b border-l border-current opacity-40" />
+              <span className="absolute -bottom-1 -right-1 h-2.5 w-2.5 border-b border-r border-current opacity-40" />
+
+              <span className="relative z-10">
+                {saveStatus === 'saved' ? '✓ Saved' : 'Save Settings'}
+              </span>
             </button>
           </div>
         </div>
