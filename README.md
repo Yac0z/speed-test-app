@@ -70,6 +70,39 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 | `npm run test:e2e` | Run E2E tests |
 | `npm run restart` | Kill port and restart dev server |
 
+## 📸 Screenshots
+
+### Desktop View
+![Desktop Homepage](screenshots/homepage-desktop.png)
+
+### Mobile View
+![Mobile Homepage](screenshots/homepage-mobile.png)
+
+### History Page
+![History Page](screenshots/history-page.png)
+
+### About Page
+![About Page](screenshots/about-page.png)
+
+## 📊 Performance Report
+
+Captured via Chrome DevTools Protocol (CDP) on production build:
+
+| Metric | Value |
+|--------|-------|
+| DOM Content Loaded | 1,266 ms |
+| Load Complete | 1,330 ms |
+| DOM Interactive | 1,265 ms |
+| JS Heap Used | 7.55 MB |
+| JS Heap Total | 10.00 MB |
+| DOM Nodes | 1,392 |
+| Layout Duration | 2.76 ms |
+| Script Duration | 16.40 ms |
+| Task Duration | 83.31 ms |
+| Transfer Size | 300 bytes (cached) |
+
+> Full report: [`screenshots/performance-report.json`](screenshots/performance-report.json)
+
 ## 📁 Project Structure
 
 ```

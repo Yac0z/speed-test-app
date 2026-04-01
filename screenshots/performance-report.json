@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-04-01T12:32:35.641Z",
+  "url": "https://speed-test-app-nu.vercel.app/en",
+  "viewport": "1280x800",
+  "navigationTiming": {
+    "domContentLoaded": 1265.5,
+    "loadComplete": 1329.5999999642372,
+    "domInteractive": 1265.3999999761581,
+    "fcp": 0,
+    "transferSize": 300,
+    "encodedBodySize": 6826,
+    "decodedBodySize": 29580
+  },
+  "runtimeMetrics": {
+    "jsHeapSizeUsed": "7.55 MB",
+    "jsHeapTotal": "10.00 MB",
+    "domNodes": 1392,
+    "layoutCount": 1,
+    "recalcStyleCount": 2,
+    "layoutDuration": "2.76 ms",
+    "scriptDuration": "16.40 ms",
+    "taskDuration": "83.31 ms",
+    "fps": "N/A"
+  }
+}

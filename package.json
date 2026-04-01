@@ -76,6 +76,7 @@
     "@vitest/coverage-v8": "^4.1.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "checkly": "^7.7.0",
+    "chrome-remote-interface": "^0.34.0",
     "cross-env": "^10.1.0",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.10",
