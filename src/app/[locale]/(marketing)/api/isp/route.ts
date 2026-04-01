@@ -3,9 +3,14 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     const response = await fetch(
-      'http://ip-api.com/json/?fields=status,message,country,regionName,city,isp,org,as,query',
+      'https://ip-api.com/json/?fields=status,message,country,regionName,city,isp,org,as,query',
       { cache: 'no-store' }
     );
+
+    if (!response.ok) {
+      return NextResponse.json({ error: 'ISP lookup failed' }, { status: 502 });
+    }
+
     const data = await response.json();
 
     if (data.status === 'success') {

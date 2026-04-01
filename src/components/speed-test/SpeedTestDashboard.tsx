@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { CyberBackground } from '@/components/CyberBackground';
+import { AdSlot } from '@/components/ads/AdSlot';
 import { ISPInfo } from '@/components/speed-test/ISPInfo';
 import { SpeedGauge } from '@/components/speed-test/SpeedGauge';
 import { TestResults } from '@/components/speed-test/TestResults';
@@ -269,6 +270,13 @@ export function SpeedTestDashboard() {
             <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
               <ISPInfo />
             </div>
+
+            {/* Sidebar ad */}
+            <AdSlot
+              slotId={process.env.NEXT_PUBLIC_AD_SLOT_SIDEBAR ?? ''}
+              format="vertical"
+              className="mx-auto"
+            />
 
             {testHistory.length > 0 && (
               <div className="cyber-card p-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>

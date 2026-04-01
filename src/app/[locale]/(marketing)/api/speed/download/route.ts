@@ -8,17 +8,24 @@ crypto.getRandomValues(randomBuffer);
 export function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const requestedSize = Number.parseInt(searchParams.get('size') ?? '5242880', 10);
+  if (Number.isNaN(requestedSize)) {
+    return NextResponse.json({ error: 'Invalid size parameter' }, { status: 400 });
+  }
   const size = Math.min(requestedSize, 50 * 1024 * 1024); // Cap at 50MB
 
   // Stream the pre-generated buffer repeated to reach requested size
   const body = new ReadableStream({
-    start(controller) {
+    async start(controller) {
       let sent = 0;
       while (sent < size) {
         const remaining = size - sent;
         const chunkSize = Math.min(BUFFER_SIZE, remaining);
         controller.enqueue(randomBuffer.slice(0, chunkSize));
         sent += chunkSize;
+        // Yield to event loop every 640KB to prevent blocking
+        if (sent % (BUFFER_SIZE * 10) === 0) {
+          await new Promise((r) => setTimeout(r, 0));
+        }
       }
       controller.close();
     },
@@ -29,7 +36,6 @@ export function GET(request: Request) {
       'Content-Type': 'application/octet-stream',
       'Content-Length': size.toString(),
       'Cache-Control': 'no-store, no-cache, must-revalidate',
-      'Access-Control-Allow-Origin': '*',
     },
   });
 }

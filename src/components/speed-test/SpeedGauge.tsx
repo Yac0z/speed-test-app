@@ -111,6 +111,7 @@ export function SpeedGauge(props: SpeedGaugeProps) {
         <svg
           viewBox="0 0 200 120"
           className="relative z-10 h-full w-full"
+          role="img"
           aria-label={`Speed gauge showing ${displayValue} ${displayUnit}`}
         >
           {/* Defs for glow filter */}

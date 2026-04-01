@@ -55,6 +55,9 @@ export function ShareModal(props: ShareModalProps) {
 
   const shareSocial = useCallback(
     (platform: string) => {
+      const allowedPlatforms = ['twitter', 'facebook', 'linkedin'] as const;
+      if (!allowedPlatforms.includes(platform as typeof allowedPlatforms[number])) return;
+
       const text = `My internet speed: ↓${results.download.toFixed(1)} Mbps ↑${results.upload.toFixed(1)} Mbps`;
       const urls: Record<string, string> = {
         twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
