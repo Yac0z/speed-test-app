@@ -23,7 +23,6 @@ type TestResultsProps = {
     jitter: number;
     timestamp: string;
   };
-  onComplete: (results: TestResultsProps['results']) => void;
 };
 
 export function TestResults(props: TestResultsProps) {

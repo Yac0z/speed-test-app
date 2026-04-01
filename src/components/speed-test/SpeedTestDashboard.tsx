@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CyberBackground } from '@/components/CyberBackground';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { ISPInfo } from '@/components/speed-test/ISPInfo';
@@ -8,7 +8,6 @@ import { SpeedGauge } from '@/components/speed-test/SpeedGauge';
 import { TestResults } from '@/components/speed-test/TestResults';
 import { useTheme } from '@/components/ThemeProvider';
 import { useSpeedTest } from '@/hooks/useSpeedTest';
-import type { SpeedTestResult } from '@/hooks/useSpeedTest';
 import { getResults, saveResult } from '@/utils/SpeedTestStorage';
 
 type SavedResult = {
@@ -49,7 +48,6 @@ export function SpeedTestDashboard() {
   const { state, startTest, cancelTest, results } = useSpeedTest();
   const { resolvedTheme } = useTheme();
   const [testHistory, setTestHistory] = useState<SavedResult[]>([]);
-  const [saving, setSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [typedText, setTypedText] = useState('');
   const fullText = '> establishing connection...';
@@ -84,26 +82,23 @@ export function SpeedTestDashboard() {
     setTestHistory(mapped.slice(0, 50));
   }, []);
 
-  const handleTestComplete = useCallback(
-    (result: SpeedTestResult) => {
-      const saved = saveResult({
-        download: result.download,
-        upload: result.upload,
-        ping: result.ping,
-        jitter: result.jitter,
-      });
-      setTestHistory((prev) => [{
-        id: saved.id,
-        timestamp: new Date(saved.timestamp).toLocaleString(),
-        download: saved.download,
-        upload: saved.upload,
-        ping: saved.ping,
-        jitter: saved.jitter,
-      }, ...prev].slice(0, 50));
-      setSaving(false);
-    },
-    []
-  );
+  useEffect(() => {
+    if (!results) return;
+    const saved = saveResult({
+      download: results.download,
+      upload: results.upload,
+      ping: results.ping,
+      jitter: results.jitter,
+    });
+    setTestHistory((prev) => [{
+      id: saved.id,
+      timestamp: new Date(saved.timestamp).toLocaleString(),
+      download: saved.download,
+      upload: saved.upload,
+      ping: saved.ping,
+      jitter: saved.jitter,
+    }, ...prev].slice(0, 50));
+  }, [results]);
 
   const buttonConfig = getButtonContent(state.phase);
 
@@ -233,17 +228,8 @@ export function SpeedTestDashboard() {
 
               {state.phase === 'complete' && results && (
                 <div className="mt-12 w-full animate-fade-in-up">
-                  <TestResults
-                    results={results}
-                    onComplete={handleTestComplete}
-                  />
+                  <TestResults results={results} />
                 </div>
-              )}
-
-              {saving && (
-                <p className="mt-4 font-mono text-sm text-cyan-neon/60">
-                  {'> Saving results...'}
-                </p>
               )}
             </div>
           </div>
