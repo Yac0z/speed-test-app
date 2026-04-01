@@ -5,6 +5,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { AdScript } from '@/components/ads/AdScript';
 import { AdConsentBanner } from '@/components/ads/AdConsentBanner';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import { generateSeoMetadata, generateJsonLd } from '@/libs/Seo';
 import { routing } from '@/libs/I18nRouting';
 import '@/styles/global.css';
@@ -18,6 +19,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   themeColor: '#0a0a1a',
+  colorScheme: 'dark light',
 };
 
 export function generateStaticParams() {
@@ -47,20 +49,33 @@ export default async function RootLayout(props: {
   });
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                var t=localStorage.getItem('speed-test-theme')||'dark';
+                var r=t==='system'?(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):t;
+                if(r==='dark')document.documentElement.classList.add('dark');
+              })();
+            `,
+          }}
+        />
       </head>
       <body>
-        <NextIntlClientProvider>
-          {props.children}
-          <AdConsentBanner />
-          <Analytics />
-          <AdScript />
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider>
+            {props.children}
+            <AdConsentBanner />
+            <Analytics />
+            <AdScript />
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

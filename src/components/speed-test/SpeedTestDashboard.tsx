@@ -6,6 +6,7 @@ import { AdSlot } from '@/components/ads/AdSlot';
 import { ISPInfo } from '@/components/speed-test/ISPInfo';
 import { SpeedGauge } from '@/components/speed-test/SpeedGauge';
 import { TestResults } from '@/components/speed-test/TestResults';
+import { useTheme } from '@/components/ThemeProvider';
 import { useSpeedTest } from '@/hooks/useSpeedTest';
 import type { SpeedTestResult } from '@/hooks/useSpeedTest';
 
@@ -38,6 +39,7 @@ function DataStream({ delay, left }: { delay: number; left: string }) {
 
 export function SpeedTestDashboard() {
   const { state, startTest, cancelTest, results } = useSpeedTest();
+  const { resolvedTheme } = useTheme();
   const [testHistory, setTestHistory] = useState<SavedResult[]>([]);
   const [saving, setSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -126,7 +128,7 @@ export function SpeedTestDashboard() {
   const isTesting = state.phase === 'ping' || state.phase === 'download' || state.phase === 'upload';
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-cyber-dark">
+    <div className={`relative min-h-screen overflow-hidden ${resolvedTheme === 'dark' ? 'bg-cyber-dark' : 'bg-slate-50'}`}>
       <CyberBackground />
 
       {/* Top accent line */}

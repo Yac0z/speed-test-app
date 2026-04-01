@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const response = await fetch(
-      'https://ip-api.com/json/?fields=status,message,country,regionName,city,isp,org,as,query',
-      { cache: 'no-store' }
-    );
+    const response = await fetch('https://ipapi.co/json/', {
+      cache: 'no-store',
+      headers: { 'User-Agent': 'SpeedTestApp/1.0' },
+    });
 
     if (!response.ok) {
       return NextResponse.json({ error: 'ISP lookup failed' }, { status: 502 });
@@ -13,17 +13,17 @@ export async function GET() {
 
     const data = await response.json();
 
-    if (data.status === 'success') {
-      return NextResponse.json({
-        ip: data.query,
-        org: data.org ?? data.isp,
-        city: data.city,
-        region: data.regionName,
-        country: data.country,
-      });
+    if (data.error) {
+      return NextResponse.json({ error: 'Lookup failed' }, { status: 502 });
     }
 
-    return NextResponse.json({ error: 'Lookup failed' }, { status: 502 });
+    return NextResponse.json({
+      ip: data.ip,
+      org: data.org ?? data.isp ?? 'Unknown ISP',
+      city: data.city,
+      region: data.region,
+      country: data.country_name ?? data.country,
+    });
   } catch {
     return NextResponse.json({ error: 'ISP lookup unavailable' }, { status: 503 });
   }

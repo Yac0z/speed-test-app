@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { DateFilter } from '@/components/history/DateFilter';
 import { ExportButton } from '@/components/history/ExportButton';
+import { useTheme } from '@/components/ThemeProvider';
 import dynamic from 'next/dynamic';
 const SpeedChart = dynamic(
   () => import('@/components/history/SpeedChart').then(mod => ({ default: mod.SpeedChart })),
@@ -22,6 +23,7 @@ type SpeedResult = {
 type DateRange = '7d' | '30d' | '90d' | '1y' | 'all';
 
 export function HistoryPage() {
+  const { resolvedTheme } = useTheme();
   const [results, setResults] = useState<SpeedResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState<DateRange>('30d');
@@ -71,9 +73,13 @@ export function HistoryPage() {
     }
   });
 
+  const bgClass = resolvedTheme === 'dark'
+    ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900'
+    : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100';
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-4 sm:p-6 lg:p-8">
+      <div className={`min-h-screen ${bgClass} p-4 sm:p-6 lg:p-8`}>
         <div className="mx-auto max-w-6xl">
           <div className="animate-pulse space-y-6">
             <div className="h-8 w-48 rounded bg-slate-700" />
@@ -93,7 +99,7 @@ export function HistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-4 sm:p-6 lg:p-8">
+    <div className={`min-h-screen ${bgClass} p-4 sm:p-6 lg:p-8`}>
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

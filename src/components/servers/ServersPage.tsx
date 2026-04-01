@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useTheme } from '@/components/ThemeProvider';
 
 type Server = {
   id: number;
@@ -53,6 +54,7 @@ const DEFAULT_SERVERS: Server[] = [
 ];
 
 export function ServersPage() {
+  const { resolvedTheme } = useTheme();
   const [servers, setServers] = useState<Server[]>([]);
   const [loading, setLoading] = useState(true);
   const [testingLatency, setTestingLatency] = useState<number | null>(null);
@@ -105,9 +107,13 @@ export function ServersPage() {
     void loadServers();
   }, []);
 
+  const bgClass = resolvedTheme === 'dark'
+    ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900'
+    : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100';
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-4 sm:p-6 lg:p-8">
+      <div className={`min-h-screen ${bgClass} p-4 sm:p-6 lg:p-8`}>
         <div className="mx-auto max-w-4xl">
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-48 rounded bg-slate-700" />
@@ -124,7 +130,7 @@ export function ServersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-4 sm:p-6 lg:p-8">
+    <div className={`min-h-screen ${bgClass} p-4 sm:p-6 lg:p-8`}>
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex items-center justify-between">
           <div>

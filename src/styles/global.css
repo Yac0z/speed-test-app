@@ -11,6 +11,32 @@
   --color-cyber-border: rgba(0, 240, 255, 0.15);
 }
 
+/* Light mode variables */
+:root {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-panel: rgba(255, 255, 255, 0.9);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: rgba(0, 240, 255, 0.2);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --input-bg: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode variables */
+.dark {
+  --bg-primary: #0a0a1a;
+  --bg-secondary: #0f172a;
+  --bg-panel: rgba(10, 10, 40, 0.8);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --border-color: rgba(0, 240, 255, 0.15);
+  --card-bg: rgba(10, 10, 30, 0.6);
+  --input-bg: rgba(0, 0, 0, 0.3);
+}
+
 @keyframes cyber-glow {
   0%, 100% { filter: drop-shadow(0 0 4px currentColor); }
   50% { filter: drop-shadow(0 0 12px currentColor); }
@@ -90,8 +116,8 @@
 
 .cyber-card {
   position: relative;
-  background: rgba(10, 10, 30, 0.6);
-  border: 1px solid rgba(0, 240, 255, 0.08);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   backdrop-filter: blur(12px);
   overflow: hidden;
@@ -150,8 +176,8 @@
 }
 
 .cyber-input {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(0, 240, 255, 0.2);
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   transition: all 0.3s ease;
 }

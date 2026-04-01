@@ -1,28 +1,32 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTheme } from '@/components/ThemeProvider';
 
 type Theme = 'light' | 'dark' | 'system';
 
 type Settings = {
-  theme: Theme;
   testDuration: number;
   parallelConnections: number;
   dataRetentionDays: number;
 };
 
 const DEFAULT_SETTINGS: Settings = {
-  theme: 'dark',
   testDuration: 10,
   parallelConnections: 4,
   dataRetentionDays: 90,
 };
 
 export function SettingsPage() {
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
   const [clearingHistory, setClearingHistory] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
+
+  const bgClass = resolvedTheme === 'dark'
+    ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900'
+    : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100';
 
   useEffect(() => {
     const stored = localStorage.getItem('speed-test-settings');
@@ -31,16 +35,8 @@ export function SettingsPage() {
         const parsed: unknown = JSON.parse(stored);
         if (typeof parsed === 'object' && parsed !== null) {
           const record = parsed;
-          const themeValue =
-            'theme' in record &&
-            (record.theme === 'light' ||
-              record.theme === 'dark' ||
-              record.theme === 'system')
-              ? (record.theme as Theme)
-              : undefined;
           setSettings({
             ...DEFAULT_SETTINGS,
-            ...(themeValue && { theme: themeValue }),
             ...('testDuration' in record &&
               typeof record.testDuration === 'number' && {
                 testDuration: record.testDuration,
@@ -90,7 +86,7 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-4 sm:p-6 lg:p-8">
+    <div className={`min-h-screen ${bgClass} p-4 sm:p-6 lg:p-8`}>
       <div className="mx-auto max-w-2xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white sm:text-3xl">
@@ -112,20 +108,20 @@ export function SettingsPage() {
                 Theme
               </legend>
               <div className="flex gap-2">
-                {(['light', 'dark', 'system'] as Theme[]).map((theme) => (
+                {(['light', 'dark', 'system'] as Theme[]).map((themeOption) => (
                   <button
-                    key={theme}
+                    key={themeOption}
                     type="button"
                     onClick={() => {
-                      updateSetting('theme', theme);
+                      setTheme(themeOption);
                     }}
                     className={`rounded-lg px-4 py-2 text-sm font-medium capitalize transition-colors ${
-                      settings.theme === theme
+                      theme === themeOption
                         ? 'bg-blue-600 text-white'
                         : 'bg-slate-700/50 text-slate-400 hover:text-white'
                     }`}
                   >
-                    {theme}
+                    {themeOption}
                   </button>
                 ))}
               </div>
