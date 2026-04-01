@@ -3,9 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { DateFilter } from '@/components/history/DateFilter';
 import { ExportButton } from '@/components/history/ExportButton';
-import { useTheme } from '@/components/ThemeProvider';
 import dynamic from 'next/dynamic';
-import { getResults } from '@/utils/SpeedTestStorage';
+import { getResults, deleteAllResults } from '@/utils/SpeedTestStorage';
 
 const SpeedChart = dynamic(
   () => import('@/components/history/SpeedChart').then(mod => ({ default: mod.SpeedChart })),
@@ -24,81 +23,61 @@ type SpeedResult = {
 
 type DateRange = '7d' | '30d' | '90d' | '1y' | 'all';
 
+function loadResults(): SpeedResult[] {
+  const data = getResults();
+  return data.map((r) => ({
+    id: r.id,
+    timestamp: r.timestamp,
+    downloadMbps: r.download,
+    uploadMbps: r.upload,
+    pingMs: r.ping,
+    jitterMs: r.jitter,
+  }));
+}
+
 export function HistoryPage() {
-  const { resolvedTheme } = useTheme();
   const [results, setResults] = useState<SpeedResult[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>('30d');
 
-  const fetchResults = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = getResults();
-      const mapped: SpeedResult[] = data.map((r) => ({
-        id: r.id,
-        timestamp: r.timestamp,
-        downloadMbps: r.download,
-        uploadMbps: r.upload,
-        pingMs: r.ping,
-        jitterMs: r.jitter,
-      }));
-      setResults(mapped);
-    } catch {
-      // Silently fail
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    setMounted(true);
+    setResults(loadResults());
+  }, []);
+
+  const handleClearAll = useCallback(() => {
+    if (window.confirm('Clear all speed test history?')) {
+      deleteAllResults();
+      setResults([]);
     }
   }, []);
 
-  useEffect(() => {
-    void fetchResults();
-  }, [fetchResults]);
-
   const filteredResults = results.filter((result) => {
-    if (dateRange === 'all') {
-      return true;
-    }
+    if (dateRange === 'all') return true;
     const now = new Date();
     const testDate = new Date(result.timestamp);
     const diffMs = now.getTime() - testDate.getTime();
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
     switch (dateRange) {
-      case '7d': {
-        return diffDays <= 7;
-      }
-      case '30d': {
-        return diffDays <= 30;
-      }
-      case '90d': {
-        return diffDays <= 90;
-      }
-      case '1y': {
-        return diffDays <= 365;
-      }
-      default: {
-        return true;
-      }
+      case '7d': return diffDays <= 7;
+      case '30d': return diffDays <= 30;
+      case '90d': return diffDays <= 90;
+      case '1y': return diffDays <= 365;
+      default: return true;
     }
   });
 
-  const bgClass = resolvedTheme === 'dark'
-    ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900'
-    : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100';
-
-  if (loading) {
+  if (!mounted) {
     return (
-      <div className={`min-h-screen ${bgClass} p-4 sm:p-6 lg:p-8`}>
+      <div className="min-h-screen bg-cyber-dark p-4 sm:p-6 lg:p-8">
         <div className="mx-auto max-w-6xl">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 w-48 rounded bg-slate-700" />
+            <div className="h-8 w-48 rounded bg-slate-800" />
             <div className="h-64 rounded-2xl bg-slate-800/50" />
             <div className="grid grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={`skeleton-${i}`}
-                  className="h-24 rounded-2xl bg-slate-800/50"
-                />
+                <div key={`skeleton-${i}`} className="h-24 rounded-2xl bg-slate-800/50" />
               ))}
             </div>
           </div>
@@ -108,7 +87,7 @@ export function HistoryPage() {
   }
 
   return (
-    <div className={`min-h-screen ${bgClass} p-4 sm:p-6 lg:p-8`}>
+    <div className="min-h-screen bg-cyber-dark p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -117,20 +96,32 @@ export function HistoryPage() {
               Speed History
             </h1>
             <p className="mt-1 text-slate-400">
-              {filteredResults.length} test
-              {filteredResults.length === 1 ? '' : 's'} recorded
+              {filteredResults.length} test{filteredResults.length === 1 ? '' : 's'} recorded
             </p>
           </div>
           <div className="flex items-center gap-3">
             <DateFilter value={dateRange} onChange={setDateRange} />
-            <ExportButton results={filteredResults} />
+            {results.length > 0 && (
+              <>
+                <ExportButton results={filteredResults} />
+                <button
+                  type="button"
+                  onClick={handleClearAll}
+                  className="rounded border border-red-500/30 px-3 py-2 text-xs font-mono text-red-400/80 transition-all hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-400"
+                >
+                  Clear All
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {filteredResults.length === 0 ? (
           <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-12 text-center backdrop-blur-sm">
             <p className="text-lg text-slate-400">
-              No speed tests recorded yet
+              {results.length === 0
+                ? 'No speed tests recorded yet'
+                : 'No tests in selected date range'}
             </p>
             <p className="mt-2 text-sm text-slate-500">
               Run a speed test to start tracking your history
@@ -152,21 +143,11 @@ export function HistoryPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-700/50">
-                      <th className="px-4 py-3 text-left text-slate-400">
-                        Date
-                      </th>
-                      <th className="px-4 py-3 text-right text-green-400">
-                        Download
-                      </th>
-                      <th className="px-4 py-3 text-right text-blue-400">
-                        Upload
-                      </th>
-                      <th className="px-4 py-3 text-right text-yellow-400">
-                        Ping
-                      </th>
-                      <th className="px-4 py-3 text-right text-purple-400">
-                        Jitter
-                      </th>
+                      <th className="px-4 py-3 text-left text-slate-400">Date</th>
+                      <th className="px-4 py-3 text-right text-green-400">Download</th>
+                      <th className="px-4 py-3 text-right text-blue-400">Upload</th>
+                      <th className="px-4 py-3 text-right text-yellow-400">Ping</th>
+                      <th className="px-4 py-3 text-right text-purple-400">Jitter</th>
                     </tr>
                   </thead>
                   <tbody>
