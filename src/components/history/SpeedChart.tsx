@@ -10,7 +10,7 @@ import type {
 import { useEffect, useRef } from 'react';
 
 type SpeedResult = {
-  id: number;
+  id: string | number;
   timestamp: string;
   downloadMbps: number;
   uploadMbps: number;

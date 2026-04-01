@@ -3,7 +3,7 @@ import { useState, useCallback, useRef } from 'react';
 export type TestPhase = 'idle' | 'ping' | 'download' | 'upload' | 'complete';
 
 export type SpeedTestResult = {
-  timestamp: Date;
+  timestamp: string;
   download: number;
   upload: number;
   ping: number;
@@ -272,7 +272,7 @@ export function useSpeedTest(): UseSpeedTestReturn {
       if (abortRef.current) return;
 
       const result: SpeedTestResult = {
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         download,
         upload,
         ping,

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 type SpeedResult = {
-  id: number;
+  id: string | number;
   timestamp: string;
   downloadMbps: number;
   uploadMbps: number;

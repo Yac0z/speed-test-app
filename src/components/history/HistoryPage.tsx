@@ -5,6 +5,8 @@ import { DateFilter } from '@/components/history/DateFilter';
 import { ExportButton } from '@/components/history/ExportButton';
 import { useTheme } from '@/components/ThemeProvider';
 import dynamic from 'next/dynamic';
+import { getResults } from '@/utils/SpeedTestStorage';
+
 const SpeedChart = dynamic(
   () => import('@/components/history/SpeedChart').then(mod => ({ default: mod.SpeedChart })),
   { loading: () => <div className="h-[300px] animate-pulse rounded-lg bg-slate-800/50" />, ssr: false }
@@ -12,7 +14,7 @@ const SpeedChart = dynamic(
 import { StatsSummary } from '@/components/history/StatsSummary';
 
 type SpeedResult = {
-  id: number;
+  id: string;
   timestamp: string;
   downloadMbps: number;
   uploadMbps: number;
@@ -31,9 +33,16 @@ export function HistoryPage() {
   const fetchResults = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/results');
-      const data: SpeedResult[] = await response.json();
-      setResults(data);
+      const data = getResults();
+      const mapped: SpeedResult[] = data.map((r) => ({
+        id: r.id,
+        timestamp: r.timestamp,
+        downloadMbps: r.download,
+        uploadMbps: r.upload,
+        pingMs: r.ping,
+        jitterMs: r.jitter,
+      }));
+      setResults(mapped);
     } catch {
       // Silently fail
     } finally {

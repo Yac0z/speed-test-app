@@ -1,17 +1,8 @@
-import { db } from '@/libs/DB';
-import { speedTestResults } from '@/models/Schema';
+import { getResults, saveResult, deleteAllResults } from '@/utils/SpeedTestStorage';
 
 export async function GET() {
-  try {
-    const results = await db
-      .select()
-      .from(speedTestResults)
-      .orderBy(speedTestResults.timestamp)
-      .limit(100);
-    return Response.json(results);
-  } catch {
-    return Response.json([]);
-  }
+  const results = getResults();
+  return Response.json(results);
 }
 
 export async function POST(request: Request) {
@@ -44,27 +35,11 @@ export async function POST(request: Request) {
       ? record.jitter
       : 0;
 
-  try {
-    const result = await db
-      .insert(speedTestResults)
-      .values({
-        downloadMbps: download,
-        uploadMbps: upload,
-        pingMs: ping,
-        jitterMs: jitter,
-      })
-      .returning();
-    return Response.json(result[0]);
-  } catch {
-    return Response.json({ saved: false }, { status: 500 });
-  }
+  const saved = saveResult({ download, upload, ping, jitter });
+  return Response.json(saved);
 }
 
 export async function DELETE() {
-  try {
-    await db.delete(speedTestResults);
-    return Response.json({ deleted: true });
-  } catch {
-    return Response.json({ deleted: false }, { status: 500 });
-  }
+  deleteAllResults();
+  return Response.json({ deleted: true });
 }

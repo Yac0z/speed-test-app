@@ -21,7 +21,7 @@ type TestResultsProps = {
     upload: number;
     ping: number;
     jitter: number;
-    timestamp: Date;
+    timestamp: string;
   };
   onComplete: (results: TestResultsProps['results']) => void;
 };
