@@ -1,33 +1,30 @@
 import { NextResponse } from 'next/server';
 
-// Pre-generate a small random buffer to avoid CPU bottleneck per request
-const BUFFER_SIZE = 64 * 1024; // 64KB
+// Pre-generate random buffer once (64KB)
+const BUFFER_SIZE = 64 * 1024;
 const randomBuffer = new Uint8Array(BUFFER_SIZE);
 crypto.getRandomValues(randomBuffer);
 
 export function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const requestedSize = Number.parseInt(searchParams.get('size') ?? '5242880', 10);
+  const requestedSize = Number.parseInt(searchParams.get('size') ?? '25000000', 10);
   if (Number.isNaN(requestedSize)) {
     return NextResponse.json({ error: 'Invalid size parameter' }, { status: 400 });
   }
-  const size = Math.min(requestedSize, 50 * 1024 * 1024); // Cap at 50MB
+  const size = Math.min(requestedSize, 100 * 1024 * 1024); // Cap at 100MB
 
-  // Stream the pre-generated buffer repeated to reach requested size
+  // Use a pull-based ReadableStream that yields chunks efficiently
+  let sent = 0;
   const body = new ReadableStream({
-    async start(controller) {
-      let sent = 0;
-      while (sent < size) {
-        const remaining = size - sent;
-        const chunkSize = Math.min(BUFFER_SIZE, remaining);
-        controller.enqueue(randomBuffer.slice(0, chunkSize));
-        sent += chunkSize;
-        // Yield to event loop every 640KB to prevent blocking
-        if (sent % (BUFFER_SIZE * 10) === 0) {
-          await new Promise((r) => setTimeout(r, 0));
-        }
+    pull(controller) {
+      const remaining = size - sent;
+      if (remaining <= 0) {
+        controller.close();
+        return;
       }
-      controller.close();
+      const chunkSize = Math.min(BUFFER_SIZE, remaining);
+      controller.enqueue(randomBuffer.slice(0, chunkSize));
+      sent += chunkSize;
     },
   });
 

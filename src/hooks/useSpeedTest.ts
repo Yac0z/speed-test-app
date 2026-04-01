@@ -23,10 +23,14 @@ type UseSpeedTestReturn = {
   cancelTest: () => void;
 };
 
-const TEST_DURATION = 10_000;
+// Test configuration
+const DOWNLOAD_DURATION = 10_000;
+const UPLOAD_DURATION = 10_000;
 const WARMUP_DURATION = 2_000;
 const PARALLEL_CONNECTIONS = 6;
-const DOWNLOAD_CHUNK_SIZE = 5 * 1024 * 1024;
+const DOWNLOAD_CHUNK_SIZE = 25 * 1024 * 1024; // 25MB per request
+const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per upload
+const SPEED_SAMPLE_INTERVAL = 200; // Calculate speed every 200ms
 
 export function useSpeedTest(): UseSpeedTestReturn {
   const [state, setState] = useState<SpeedTestState>({
@@ -36,7 +40,6 @@ export function useSpeedTest(): UseSpeedTestReturn {
   });
   const [results, setResults] = useState<SpeedTestResult | null>(null);
   const abortRef = useRef(false);
-  const speedUpdatesRef = useRef<number[]>([]);
 
   const measurePing = useCallback(async (): Promise<{
     ping: number;
@@ -54,7 +57,10 @@ export function useSpeedTest(): UseSpeedTestReturn {
           method: 'HEAD',
           cache: 'no-store',
         });
-        samples.push(performance.now() - start);
+        const duration = performance.now() - start;
+        if (duration > 0) {
+          samples.push(duration);
+        }
       } catch {
         // skip
       }
@@ -66,18 +72,24 @@ export function useSpeedTest(): UseSpeedTestReturn {
       }));
     }
 
-    const validSamples = samples.filter((s) => s > 0);
+    if (samples.length === 0) return { ping: 0, jitter: 0 };
+
+    // Remove outliers: discard fastest 10% and slowest 10%
+    const sorted = [...samples].sort((a, b) => a - b);
+    const trimCount = Math.max(1, Math.floor(sorted.length * 0.1));
+    const trimmed = sorted.slice(trimCount, sorted.length - trimCount);
+
     const avgPing =
-      validSamples.length > 0
-        ? validSamples.reduce((a, b) => a + b, 0) / validSamples.length
-        : 0;
+      trimmed.length > 0
+        ? trimmed.reduce((a, b) => a + b, 0) / trimmed.length
+        : samples.reduce((a, b) => a + b, 0) / samples.length;
 
     let jitter = 0;
-    if (validSamples.length > 1) {
+    if (trimmed.length > 1) {
       const diffs: number[] = [];
-      for (let i = 1; i < validSamples.length; i += 1) {
-        const current = validSamples[i];
-        const previous = validSamples[i - 1];
+      for (let i = 1; i < trimmed.length; i += 1) {
+        const current = trimmed[i];
+        const previous = trimmed[i - 1];
         if (current !== undefined && previous !== undefined) {
           diffs.push(Math.abs(current - previous));
         }
@@ -89,15 +101,20 @@ export function useSpeedTest(): UseSpeedTestReturn {
   }, []);
 
   const measureDownload = useCallback(async (): Promise<number> => {
-    const samples: number[] = [];
     const startTime = performance.now();
     let totalBytes = 0;
-    let isWarmup = true;
-    speedUpdatesRef.current = [];
+    let warmupBytes = 0;
+    let measurementStarted = false;
+    let measurementStart = 0;
+
+    // Speed samples: bytes measured in each interval
+    const speedSamples: number[] = [];
+    let lastSampleTime = startTime;
+    let lastSampleBytes = 0;
 
     const downloadStream = async () => {
       while (
-        performance.now() - startTime < TEST_DURATION + WARMUP_DURATION &&
+        performance.now() - startTime < DOWNLOAD_DURATION + WARMUP_DURATION &&
         !abortRef.current
       ) {
         try {
@@ -109,52 +126,59 @@ export function useSpeedTest(): UseSpeedTestReturn {
           if (!response.body) break;
 
           const reader = response.body.getReader();
-          let chunkBytes = 0;
 
           // eslint-disable-next-line no-constant-condition
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            chunkBytes += value.length;
             const now = performance.now();
-            const elapsed = (now - startTime) / 1000;
+            const bytesReceived = value.length;
+            totalBytes += bytesReceived;
 
-            if (elapsed > 0) {
-              const instantSpeed = (chunkBytes * 8) / (elapsed * 1_000_000);
-              speedUpdatesRef.current.push(instantSpeed);
-
-              // Update UI every few chunks for smooth gauge animation
-              setState((prev) => ({
-                ...prev,
-                currentSpeed: instantSpeed,
-                progress: isWarmup
-                  ? 15 + (elapsed / (WARMUP_DURATION / 1000)) * 10
-                  : 25 +
-                    Math.min(
-                      ((elapsed - WARMUP_DURATION / 1000) /
-                        (TEST_DURATION / 1000)) *
-                        35,
-                      35
-                    ),
-              }));
+            if (!measurementStarted) {
+              warmupBytes += bytesReceived;
+              if (now - startTime > WARMUP_DURATION) {
+                measurementStarted = true;
+                measurementStart = now;
+                totalBytes = 0; // Reset: only count bytes after warmup
+                warmupBytes = 0;
+                lastSampleTime = now;
+                lastSampleBytes = 0;
+                speedSamples.length = 0;
+              }
             }
-          }
 
-          totalBytes += chunkBytes;
+            if (measurementStarted) {
+              // Calculate speed in current interval
+              const intervalBytes = totalBytes;
+              const intervalSeconds = (now - measurementStart) / 1000;
 
-          // Mark warmup complete
-          if (isWarmup && performance.now() - startTime > WARMUP_DURATION) {
-            isWarmup = false;
-            totalBytes = 0; // Reset bytes counted during warmup
-            samples.length = 0; // Clear samples from warmup
-          }
+              if (intervalSeconds > 0) {
+                const speedMbps = (intervalBytes * 8) / (intervalSeconds * 1_000_000);
 
-          // Record sample after warmup
-          if (!isWarmup) {
-            const elapsed = (performance.now() - startTime) / 1000;
-            const speedMbps = (totalBytes * 8) / (elapsed * 1_000_000);
-            samples.push(speedMbps);
+                // Sample every SPEED_SAMPLE_INTERVAL ms
+                if (now - lastSampleTime >= SPEED_SAMPLE_INTERVAL) {
+                  const sampleBytes = totalBytes - lastSampleBytes;
+                  const sampleSeconds = (now - lastSampleTime) / 1000;
+                  if (sampleSeconds > 0) {
+                    const sampleSpeed = (sampleBytes * 8) / (sampleSeconds * 1_000_000);
+                    speedSamples.push(sampleSpeed);
+                  }
+                  lastSampleTime = now;
+                  lastSampleBytes = totalBytes;
+                }
+
+                setState((prev) => ({
+                  ...prev,
+                  currentSpeed: speedMbps,
+                  progress: 15 + Math.min(
+                    ((now - startTime) / (DOWNLOAD_DURATION + WARMUP_DURATION)) * 35,
+                    35
+                  ),
+                }));
+              }
+            }
           }
         } catch {
           break;
@@ -167,27 +191,46 @@ export function useSpeedTest(): UseSpeedTestReturn {
     );
     await Promise.all(workers);
 
-    if (samples.length === 0) return 0;
+    if (speedSamples.length === 0) {
+      // Fallback: calculate from total
+      const elapsed = (performance.now() - measurementStart) / 1000;
+      if (elapsed > 0 && totalBytes > 0) {
+        return (totalBytes * 8) / (elapsed * 1_000_000);
+      }
+      return 0;
+    }
 
-    // Use percentile-based calculation (80th percentile) for accuracy
-    const sorted = [...samples].sort((a, b) => a - b);
-    const p80Index = Math.floor(sorted.length * 0.8);
-    return sorted[Math.min(p80Index, sorted.length - 1)] ?? 0;
+    // Remove outliers: discard lowest 10% and highest 10%
+    const sorted = [...speedSamples].sort((a, b) => a - b);
+    const trimCount = Math.max(1, Math.floor(sorted.length * 0.1));
+    const trimmed = sorted.slice(trimCount, sorted.length - trimCount);
+
+    // Use median of trimmed samples
+    const mid = Math.floor(trimmed.length / 2);
+    if (trimmed.length % 2 === 0) {
+      const a = trimmed[mid - 1];
+      const b = trimmed[mid];
+      return a !== undefined && b !== undefined ? (a + b) / 2 : 0;
+    }
+    return trimmed[mid] ?? 0;
   }, []);
 
   const measureUpload = useCallback(async (): Promise<number> => {
-    const samples: number[] = [];
     const startTime = performance.now();
     let totalBytes = 0;
-    let isWarmup = true;
-    speedUpdatesRef.current = [];
+    let measurementStarted = false;
+    let measurementStart = 0;
 
-    const UPLOAD_CHUNK_SIZE = 2 * 1024 * 1024; // 2MB chunks
+    const speedSamples: number[] = [];
+    let lastSampleTime = startTime;
+    let lastSampleBytes = 0;
+
+    // Generate upload data once (reused)
     const uploadData = new Blob([new ArrayBuffer(UPLOAD_CHUNK_SIZE)]);
 
     const uploadStream = async () => {
       while (
-        performance.now() - startTime < TEST_DURATION + WARMUP_DURATION &&
+        performance.now() - startTime < UPLOAD_DURATION + WARMUP_DURATION &&
         !abortRef.current
       ) {
         const fetchStart = performance.now();
@@ -197,41 +240,58 @@ export function useSpeedTest(): UseSpeedTestReturn {
             body: uploadData,
           });
 
-          const elapsed = (performance.now() - fetchStart) / 1000;
-          const instantSpeed =
-            (UPLOAD_CHUNK_SIZE * 8) / (elapsed * 1_000_000);
+          const now = performance.now();
+          const elapsed = (now - fetchStart) / 1000;
 
-          // Mark warmup complete
-          if (isWarmup && performance.now() - startTime > WARMUP_DURATION) {
-            isWarmup = false;
-            totalBytes = 0;
-            samples.length = 0;
-          }
+          if (elapsed > 0) {
+            const instantSpeed = (UPLOAD_CHUNK_SIZE * 8) / (elapsed * 1_000_000);
 
-          if (!isWarmup) {
-            totalBytes += UPLOAD_CHUNK_SIZE;
-            const totalElapsed =
-              (performance.now() - startTime - WARMUP_DURATION) / 1000;
-            if (totalElapsed > 0) {
-              const speedMbps = (totalBytes * 8) / (totalElapsed * 1_000_000);
-              samples.push(speedMbps);
+            if (!measurementStarted) {
+              if (now - startTime > WARMUP_DURATION) {
+                measurementStarted = true;
+                measurementStart = now;
+                totalBytes = 0;
+                lastSampleTime = now;
+                lastSampleBytes = 0;
+                speedSamples.length = 0;
+              }
+            }
+
+            if (measurementStarted) {
+              totalBytes += UPLOAD_CHUNK_SIZE;
+              const totalElapsed = (now - measurementStart) / 1000;
+
+              if (totalElapsed > 0) {
+                const avgSpeed = (totalBytes * 8) / (totalElapsed * 1_000_000);
+
+                // Sample every interval
+                if (now - lastSampleTime >= SPEED_SAMPLE_INTERVAL) {
+                  const sampleBytes = totalBytes - lastSampleBytes;
+                  const sampleSeconds = (now - lastSampleTime) / 1000;
+                  if (sampleSeconds > 0) {
+                    const sampleSpeed = (sampleBytes * 8) / (sampleSeconds * 1_000_000);
+                    speedSamples.push(sampleSpeed);
+                  }
+                  lastSampleTime = now;
+                  lastSampleBytes = totalBytes;
+                }
+
+                setState((prev) => ({
+                  ...prev,
+                  currentSpeed: avgSpeed,
+                  progress: 50 + Math.min(
+                    ((now - startTime) / (UPLOAD_DURATION + WARMUP_DURATION)) * 50,
+                    50
+                  ),
+                }));
+              }
+            }
+
+            // Adaptive: if upload is fast, reduce wait; if slow, continue
+            if (instantSpeed > 100 && elapsed < 0.5) {
+              // Fast connection, continue immediately
             }
           }
-
-          setState((prev) => ({
-            ...prev,
-            currentSpeed: instantSpeed,
-            progress: isWarmup
-              ? 60 +
-                ((performance.now() - startTime) / WARMUP_DURATION) * 10
-              : 70 +
-                Math.min(
-                  ((performance.now() - startTime - WARMUP_DURATION) /
-                    TEST_DURATION) *
-                    30,
-                  30
-                ),
-          }));
         } catch {
           break;
         }
@@ -243,11 +303,27 @@ export function useSpeedTest(): UseSpeedTestReturn {
     );
     await Promise.all(workers);
 
-    if (samples.length === 0) return 0;
+    if (speedSamples.length === 0) {
+      const elapsed = (performance.now() - measurementStart) / 1000;
+      if (elapsed > 0 && totalBytes > 0) {
+        return (totalBytes * 8) / (elapsed * 1_000_000);
+      }
+      return 0;
+    }
 
-    const sorted = [...samples].sort((a, b) => a - b);
-    const p80Index = Math.floor(sorted.length * 0.8);
-    return sorted[Math.min(p80Index, sorted.length - 1)] ?? 0;
+    // Remove outliers: discard lowest 10% and highest 10%
+    const sorted = [...speedSamples].sort((a, b) => a - b);
+    const trimCount = Math.max(1, Math.floor(sorted.length * 0.1));
+    const trimmed = sorted.slice(trimCount, sorted.length - trimCount);
+
+    // Use median of trimmed samples
+    const mid = Math.floor(trimmed.length / 2);
+    if (trimmed.length % 2 === 0) {
+      const a = trimmed[mid - 1];
+      const b = trimmed[mid];
+      return a !== undefined && b !== undefined ? (a + b) / 2 : 0;
+    }
+    return trimmed[mid] ?? 0;
   }, []);
 
   const startTest = useCallback(async () => {
@@ -266,17 +342,17 @@ export function useSpeedTest(): UseSpeedTestReturn {
 
       if (abortRef.current) return;
 
-      setState((prev) => ({ ...prev, phase: 'upload', progress: 60 }));
+      setState((prev) => ({ ...prev, phase: 'upload', progress: 50 }));
       const upload = await measureUpload();
 
       if (abortRef.current) return;
 
       const result: SpeedTestResult = {
         timestamp: new Date().toISOString(),
-        download,
-        upload,
-        ping,
-        jitter,
+        download: Math.round(download * 100) / 100,
+        upload: Math.round(upload * 100) / 100,
+        ping: Math.round(ping * 100) / 100,
+        jitter: Math.round(jitter * 100) / 100,
       };
 
       setState({ phase: 'complete', currentSpeed: 0, progress: 100 });
