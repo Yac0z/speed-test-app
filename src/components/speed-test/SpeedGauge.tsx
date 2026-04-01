@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 export type SpeedGaugeProps = {
   currentSpeed: number;
   phase: 'idle' | 'ping' | 'download' | 'upload' | 'complete';
@@ -33,12 +31,8 @@ function getGaugeMax(speed: number): number {
 export function SpeedGauge(props: SpeedGaugeProps) {
   const { currentSpeed, phase, progress } = props;
 
-  const { displayValue, displayUnit } = useMemo(() => {
-    const { value, unit } = getSpeedUnit(currentSpeed);
-    return { displayValue: value, displayUnit: unit };
-  }, [currentSpeed]);
-
-  const gaugeMax = useMemo(() => getGaugeMax(currentSpeed), [currentSpeed]);
+  const { value: displayValue, unit: displayUnit } = getSpeedUnit(currentSpeed);
+  const gaugeMax = getGaugeMax(currentSpeed);
   const gaugePercentage = Math.min((currentSpeed / gaugeMax) * 100, 100);
   const angle = (gaugePercentage / 100) * 180;
   const arcLength = Math.PI * 80;

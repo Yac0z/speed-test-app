@@ -1,6 +1,5 @@
 'use client';
 
-import { toPng } from 'html-to-image';
 import { useRef, useCallback } from 'react';
 
 type ShareModalProps = {
@@ -23,6 +22,7 @@ export function ShareModal(props: ShareModalProps) {
     }
 
     try {
+      const { toPng } = await import('html-to-image');
       const dataUrl = await toPng(cardRef.current, {
         backgroundColor: '#0f172a',
         quality: 1,

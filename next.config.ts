@@ -12,6 +12,8 @@ const baseConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   reactCompiler: process.env.NODE_ENV === 'production', // Keep the development environment fast
+  serverExternalPackages: ['pg', '@logtape/logtape'],
+  images: { formats: ['image/avif', 'image/webp'] },
   outputFileTracingIncludes: {
     '/': ['./migrations/**/*'],
   },

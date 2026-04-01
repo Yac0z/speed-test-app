@@ -3,7 +3,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { DateFilter } from '@/components/history/DateFilter';
 import { ExportButton } from '@/components/history/ExportButton';
-import { SpeedChart } from '@/components/history/SpeedChart';
+import dynamic from 'next/dynamic';
+const SpeedChart = dynamic(
+  () => import('@/components/history/SpeedChart').then(mod => ({ default: mod.SpeedChart })),
+  { loading: () => <div className="h-[300px] animate-pulse rounded-lg bg-slate-800/50" />, ssr: false }
+);
 import { StatsSummary } from '@/components/history/StatsSummary';
 
 type SpeedResult = {

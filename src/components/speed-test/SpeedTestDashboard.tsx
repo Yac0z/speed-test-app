@@ -47,20 +47,18 @@ export function SpeedTestDashboard() {
 
   // Typing animation
   useEffect(() => {
-    if (state.phase === 'idle') {
-      setTypedText('');
-      let i = 0;
-      const interval = setInterval(() => {
-        if (i <= fullText.length) {
-          setTypedText(fullText.slice(0, i));
-          i++;
-        } else {
-          clearInterval(interval);
-        }
-      }, 50);
-      return () => clearInterval(interval);
-    }
-    return undefined;
+    if (state.phase !== 'idle') return;
+    setTypedText('');
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i <= fullText.length) {
+        setTypedText(fullText.slice(0, i));
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 50);
+    return () => clearInterval(interval);
   }, [state.phase]);
 
   useEffect(() => {
