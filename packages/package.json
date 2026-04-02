@@ -1,0 +1,20 @@
+{
+  "name": "speedtest-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "cli": "npm run --workspace=@speedtest/cli start",
+    "mcp": "npm run --workspace=@speedtest/server start",
+    "cli:dev": "npm run --workspace=@speedtest/cli dev",
+    "mcp:dev": "npm run --workspace=@speedtest/server dev"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
