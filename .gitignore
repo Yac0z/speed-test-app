@@ -74,8 +74,6 @@ packages/*/dist
 packages/*/tsconfig.json
 packages/*/package-lock.json
 packages/*/bun.lock
-
-# Except dist-bin (our executables)
-!packages/dist-bin
+packages/dist-bin
 
 .vercel
