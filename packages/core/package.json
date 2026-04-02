@@ -1,0 +1,20 @@
+{
+  "name": "@speedtest/core",
+  "version": "1.0.0",
+  "description": "Shared speed test engine and utilities",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@cloudflare/speedtest": "^1.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0",
+    "vitest": "^3.1.4"
+  }
+}

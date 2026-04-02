@@ -67,4 +67,9 @@ build-archive.log
 # IDE
 .idea/
 
+# Packages node_modules
+packages/*/node_modules
+packages/*/.turbo
+packages/*/dist
+
 .vercel

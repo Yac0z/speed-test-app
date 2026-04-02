@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { QualityScore } from './QualityScore';
 const ShareModal = dynamic(
   () => import('@/components/share/ShareModal').then(mod => ({ default: mod.ShareModal })),
   { ssr: false }
@@ -38,6 +39,13 @@ export function TestResults(props: TestResultsProps) {
 
   return (
     <>
+      <QualityScore
+        download={results.download}
+        upload={results.upload}
+        ping={results.ping}
+        jitter={results.jitter}
+      />
+
       <div className="mt-6">
         <div className="mb-4 font-mono text-xs text-cyan-neon/60 uppercase tracking-wider">
           {'>'} Test Results
