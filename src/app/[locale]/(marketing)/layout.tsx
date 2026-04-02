@@ -21,6 +21,7 @@ export default async function Layout(props: {
           <li><CyberNavLink href="/">{t('home_link')}</CyberNavLink></li>
           <li><CyberNavLink href="/history/">{t('history_link')}</CyberNavLink></li>
           <li><CyberNavLink href="/servers/">{t('servers_link')}</CyberNavLink></li>
+          <li><CyberNavLink href="/download/">{t('download_link')}</CyberNavLink></li>
           <li><CyberNavLink href="/settings/">{t('settings_link')}</CyberNavLink></li>
         </>
       }
