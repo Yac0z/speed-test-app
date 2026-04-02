@@ -16,8 +16,8 @@ A modern speed test application with web interface, CLI tools, and MCP server fo
 | Platform | Link |
 |----------|------|
 | 🌐 **Web App** | [speed-test-app-nu.vercel.app](https://speed-test-app-nu.vercel.app) |
-| 💻 **CLI (Windows)** | [Download speedtest-cli.exe](https://github.com/Yac0z/speed-test-app/releases/download/v1.0.0/speedtest-cli.exe) |
-| 🤖 **MCP Server** | [Download speedtest-mcp.exe](https://github.com/Yac0z/speed-test-app/releases/download/v1.0.0/speedtest-mcp.exe) |
+| 💻 **CLI (Windows)** | [Download from Releases](https://github.com/Yac0z/speed-test-app/releases) |
+| 🤖 **MCP Server** | [Download from Releases](https://github.com/Yac0z/speed-test-app/releases) |
 | 📦 **Source Code** | [GitHub Releases](https://github.com/Yac0z/speed-test-app/releases) |
 
 ---
