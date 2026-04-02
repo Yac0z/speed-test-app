@@ -3,6 +3,7 @@
     "home_link": "Speed Test",
     "history_link": "History",
     "servers_link": "Servers",
+    "download_link": "Download",
     "settings_link": "Settings"
   },
   "BaseTemplate": {

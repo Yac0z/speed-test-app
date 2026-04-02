@@ -3,6 +3,7 @@
     "home_link": "Test de vitesse",
     "history_link": "Historique",
     "servers_link": "Serveurs",
+    "download_link": "Télécharger",
     "settings_link": "Paramètres"
   },
   "BaseTemplate": {
