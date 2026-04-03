@@ -9,19 +9,74 @@ on:
       - main
 
 jobs:
-  release:
+  build-binaries:
+    name: Build binaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
     strategy:
       matrix:
-        node-version: [24.x]
+        include:
+          - package: cli
+            artifact: speedtest-cli
+          - package: server
+            artifact: speedtest-mcp
 
-    name: Create a new release
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build -w packages/${{ matrix.package }}
+
+      - name: Install pkg
+        run: npm install -g pkg
+
+      - name: Build ${{ matrix.artifact }} binaries
+        run: npm run pkg -w packages/${{ matrix.package }}
+
+      - name: Upload Windows binary
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: packages/${{ matrix.package }}/dist-bin/${{ matrix.artifact }}-win-x64.exe
+          asset_name: ${{ matrix.artifact }}-win-x64.exe
+          asset_content_type: application/x-msdownload
+
+      - name: Upload Linux binary
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: packages/${{ matrix.package }}/dist-bin/${{ matrix.artifact }}-linux-x64
+          asset_name: ${{ matrix.artifact }}-linux-x64
+          asset_content_type: application/octet-stream
+
+      - name: Upload macOS binary
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: packages/${{ matrix.package }}/dist-bin/${{ matrix.artifact }}-macos-x64
+          asset_name: ${{ matrix.artifact }}-macos-x64
+          asset_content_type: application/octet-stream
+
+  release:
+    needs: build-binaries
+    name: Create release
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
+      contents: write
+      issues: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v6
@@ -31,7 +86,7 @@ jobs:
       - name: Set up Node.js environment
         uses: ./.github/actions/setup-project
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 24.x
 
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
