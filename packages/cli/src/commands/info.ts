@@ -1,14 +1,12 @@
 import chalk from 'chalk';
 import Table from 'cli-table3';
-import ora from 'ora';
 import { getConnectionInfo } from 'speedtest-core';
 
 export async function infoCommand(): Promise<void> {
-  const spinner = ora('Fetching connection info...').start();
+  console.log('Fetching connection info...');
 
   try {
     const info = await getConnectionInfo();
-    spinner.succeed('Connection info retrieved!');
 
     const table = new Table({
       head: [chalk.cyan.bold('Property'), chalk.cyan.bold('Value')],
@@ -27,7 +25,7 @@ export async function infoCommand(): Promise<void> {
     console.log(chalk.bold.cyan('\nConnection Information'));
     console.log(table.toString());
   } catch (error) {
-    spinner.fail('Failed to fetch connection info');
-    throw error;
+    console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+    process.exit(1);
   }
 }
