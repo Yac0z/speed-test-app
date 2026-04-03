@@ -1,4 +1,4 @@
-import type { SpeedTestResult } from '@speedtest/core';
+import type { SpeedTestResult } from 'speedtest-core';
 import { describe, it, expect } from 'vitest';
 import {
   formatTable,

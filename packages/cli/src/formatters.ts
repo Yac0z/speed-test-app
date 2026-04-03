@@ -1,4 +1,4 @@
-import type { SpeedTestResult } from '@speedtest/core';
+import type { SpeedTestResult } from 'speedtest-core';
 import chalk from 'chalk';
 import Table from 'cli-table3';
 

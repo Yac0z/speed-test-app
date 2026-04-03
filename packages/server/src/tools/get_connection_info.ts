@@ -1,4 +1,4 @@
-import { getConnectionInfo } from '@speedtest/core';
+import { getConnectionInfo } from 'speedtest-core';
 
 export async function getConnectionInfoHandler() {
   const info = await getConnectionInfo();

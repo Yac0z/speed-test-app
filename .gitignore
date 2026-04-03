@@ -77,6 +77,7 @@ packages/*/dist
 packages/*/tsconfig.json
 packages/*/package-lock.json
 packages/*/bun.lock
-packages/dist-bin
+packages/*/dist-bin
 
 .vercel
+packages/*/dist-bin

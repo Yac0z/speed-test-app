@@ -16,10 +16,10 @@
     "speedtest-cli": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"const esbuild=require('esbuild'); esbuild.buildSync({entryPoints:['src/index.ts'],bundle:true,platform:'node',outfile:'dist/index.js',format:'cjs',external:['speedtest-core']});\"",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
-    "pkg": "pkg . --targets latest-win-x64,latest-linux-x64,latest-macos-x64 --out-path dist-bin",
+    "pkg": "npm run build && pkg dist/index.js --targets latest-win-x64,latest-linux-x64,latest-macos-x64 --out-path dist-bin",
     "test": "vitest run",
     "prepublishOnly": "npm run build"
   },
@@ -29,10 +29,11 @@
     "cli-table3": "^0.6.5",
     "commander": "^12.0.0",
     "ora": "^8.0.1",
-    "speedtest-core": "1.0.0"
+    "speedtest-core": "file:../core"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "esbuild": "^0.24.0",
     "pkg": "^5.8.1",
     "tsx": "^4.7.0",
     "typescript": "^5.4.0",

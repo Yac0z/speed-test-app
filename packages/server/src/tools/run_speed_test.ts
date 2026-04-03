@@ -1,5 +1,5 @@
-import type { TestPhase } from '@speedtest/core';
-import { runSpeedTest, saveResult } from '@speedtest/core';
+import type { TestPhase } from 'speedtest-core';
+import { runSpeedTest, saveResult } from 'speedtest-core';
 import { z } from 'zod';
 
 export const runSpeedTestSchema = z.object({

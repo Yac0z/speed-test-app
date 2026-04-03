@@ -23,6 +23,7 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
+      "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
@@ -37,7 +38,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.4.0",
+    "typescript": "^5.9.3",
     "vitest": "^3.1.4"
   },
   "engines": {
