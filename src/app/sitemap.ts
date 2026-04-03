@@ -5,11 +5,18 @@ import { getBaseUrl, getI18nPath } from '@/utils/Helpers';
 type RouteConfig = {
   path: string;
   priority: number;
-  changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
+  changeFrequency:
+    | 'always'
+    | 'hourly'
+    | 'daily'
+    | 'weekly'
+    | 'monthly'
+    | 'yearly'
+    | 'never';
 };
 
 const routes: RouteConfig[] = [
-  { path: '', priority: 1.0, changeFrequency: 'daily' },
+  { path: '', priority: 1, changeFrequency: 'daily' },
   { path: '/about', priority: 0.5, changeFrequency: 'monthly' },
   { path: '/history', priority: 0.6, changeFrequency: 'weekly' },
   { path: '/servers', priority: 0.7, changeFrequency: 'monthly' },

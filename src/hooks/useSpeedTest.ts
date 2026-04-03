@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
 import SpeedTest from '@cloudflare/speedtest';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 export type TestPhase = 'idle' | 'ping' | 'download' | 'upload' | 'complete';
 
@@ -33,13 +33,11 @@ export function useSpeedTest(): UseSpeedTestReturn {
   const [results, setResults] = useState<SpeedTestResult | null>(null);
   const speedTestRef = useRef<SpeedTest | null>(null);
 
-  useEffect(() => {
-    return () => {
+  useEffect(() => () => {
       if (speedTestRef.current) {
         speedTestRef.current.pause();
       }
-    };
-  }, []);
+    }, []);
 
   const startTest = useCallback(() => {
     if (speedTestRef.current) {

@@ -15,7 +15,12 @@ export {
 export { runSpeedTest, createAbortController } from './engine.js';
 
 // Storage
-export { getResults, saveResult, deleteAllResults, exportResults } from './storage.js';
+export {
+  getResults,
+  saveResult,
+  deleteAllResults,
+  exportResults,
+} from './storage.js';
 
 // Connection
 export { getConnectionInfo } from './connection.js';

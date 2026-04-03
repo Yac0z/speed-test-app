@@ -1,10 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import { QualityScore } from './QualityScore';
 const ShareModal = dynamic(
-  () => import('@/components/share/ShareModal').then(mod => ({ default: mod.ShareModal })),
+   async () =>
+    import('@/components/share/ShareModal').then((mod) => ({
+      default: mod.ShareModal,
+    })),
   { ssr: false }
 );
 
@@ -31,10 +34,34 @@ export function TestResults(props: TestResultsProps) {
   const [showShare, setShowShare] = useState(false);
 
   const metrics: MetricCard[] = [
-    { label: 'DOWNLOAD', value: results.download.toFixed(1), unit: 'Mbps', color: 'from-green-500/20 to-green-500/5 border-green-500/30', icon: '↓' },
-    { label: 'UPLOAD', value: results.upload.toFixed(1), unit: 'Mbps', color: 'from-blue-500/20 to-blue-500/5 border-blue-500/30', icon: '↑' },
-    { label: 'PING', value: results.ping.toFixed(0), unit: 'ms', color: 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/30', icon: '◉' },
-    { label: 'JITTER', value: results.jitter.toFixed(1), unit: 'ms', color: 'from-purple-500/20 to-purple-500/5 border-purple-500/30', icon: '〰' },
+    {
+      label: 'DOWNLOAD',
+      value: results.download.toFixed(1),
+      unit: 'Mbps',
+      color: 'from-green-500/20 to-green-500/5 border-green-500/30',
+      icon: '↓',
+    },
+    {
+      label: 'UPLOAD',
+      value: results.upload.toFixed(1),
+      unit: 'Mbps',
+      color: 'from-blue-500/20 to-blue-500/5 border-blue-500/30',
+      icon: '↑',
+    },
+    {
+      label: 'PING',
+      value: results.ping.toFixed(0),
+      unit: 'ms',
+      color: 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/30',
+      icon: '◉',
+    },
+    {
+      label: 'JITTER',
+      value: results.jitter.toFixed(1),
+      unit: 'ms',
+      color: 'from-purple-500/20 to-purple-500/5 border-purple-500/30',
+      icon: '〰',
+    },
   ];
 
   return (
@@ -47,7 +74,7 @@ export function TestResults(props: TestResultsProps) {
       />
 
       <div className="mt-6">
-        <div className="mb-4 font-mono text-xs text-cyan-neon/60 uppercase tracking-wider">
+        <div className="mb-4 font-mono text-xs tracking-wider text-cyan-neon/60 uppercase">
           {'>'} Test Results
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -75,7 +102,7 @@ export function TestResults(props: TestResultsProps) {
       <div className="mt-6 flex justify-center">
         <button
           type="button"
-          onClick={() => setShowShare(true)}
+          onClick={() =>{  setShowShare(true); }}
           className="cyber-btn rounded-lg border border-cyan-neon/20 bg-cyan-neon/5 px-6 py-2.5 font-mono text-sm tracking-wider text-cyan-neon/80 uppercase transition-all hover:border-cyan-neon/40 hover:bg-cyan-neon/10 hover:text-cyan-neon"
         >
           Share Results
@@ -90,7 +117,7 @@ export function TestResults(props: TestResultsProps) {
             ping: results.ping,
             jitter: results.jitter,
           }}
-          onClose={() => setShowShare(false)}
+          onClose={() =>{  setShowShare(false); }}
         />
       )}
     </>

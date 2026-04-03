@@ -1,6 +1,6 @@
-import { z } from 'zod';
 import type { TestPhase } from '@speedtest/core';
 import { runSpeedTest, saveResult } from '@speedtest/core';
+import { z } from 'zod';
 
 export const runSpeedTestSchema = z.object({
   duration: z
@@ -15,7 +15,9 @@ export const runSpeedTestSchema = z.object({
     .describe('Which phases to run (default: all)'),
 });
 
-export async function runSpeedTestHandler(args: z.infer<typeof runSpeedTestSchema>) {
+export async function runSpeedTestHandler(
+  args: z.infer<typeof runSpeedTestSchema>
+) {
   const { duration, phases } = args;
 
   const result = await runSpeedTest({

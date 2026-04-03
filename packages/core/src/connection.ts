@@ -1,6 +1,6 @@
 /** Fetches connection information from ipapi.co geolocation service. */
 
-import { type ConnectionInfo } from './types.js';
+import type { ConnectionInfo } from './types.js';
 
 /** Response shape from ipapi.co/json/. */
 type IpApiResponse = {
@@ -29,7 +29,9 @@ export async function getConnectionInfo(): Promise<ConnectionInfo> {
   const response = await fetch('https://ipapi.co/json/');
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch connection info: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch connection info: ${response.status} ${response.statusText}`
+    );
   }
 
   const data = (await response.json()) as IpApiResponse;

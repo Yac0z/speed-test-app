@@ -1,6 +1,6 @@
 export type ConnectionType = '4g' | '3g' | '2g' | 'slow-2g' | 'unknown';
 
-interface NetworkInformation {
+type NetworkInformation = {
   effectiveType?: string;
   downlink?: number;
   saveData?: boolean;
@@ -19,7 +19,7 @@ export type NetworkInfo = {
 
 function getNetworkInfo(): NetworkInfo {
   const nav = navigator as Navigator & { connection?: NetworkInformation };
-  const connection = nav.connection;
+  const {connection} = nav;
 
   if (!connection) {
     return {
@@ -69,13 +69,13 @@ export function formatConnectionType(type: ConnectionType): string {
     '3g': '3G',
     '2g': '2G',
     'slow-2g': '2G (Slow)',
-    'unknown': 'Unknown',
+    unknown: 'Unknown',
   };
   return labels[type];
 }
 
 export function formatDownlinkSpeed(mbps: number | null): string {
-  if (mbps === null) return '—';
-  if (mbps < 1) return `${(mbps * 1000).toFixed(0)} Kbps`;
+  if (mbps === null) {return '—';}
+  if (mbps < 1) {return `${(mbps * 1000).toFixed(0)} Kbps`;}
   return `${mbps.toFixed(1)} Mbps`;
 }

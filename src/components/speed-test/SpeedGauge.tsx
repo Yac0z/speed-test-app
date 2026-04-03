@@ -5,44 +5,44 @@ export type SpeedGaugeProps = {
 };
 
 function getStrokeColor(percentage: number): string {
-  if (percentage < 30) return '#ef4444';
-  if (percentage < 60) return '#eab308';
+  if (percentage < 30) {return '#ef4444';}
+  if (percentage < 60) {return '#eab308';}
   return '#22c55e';
 }
 
 function getSpeedUnit(speed: number): { value: number; unit: string } {
-  if (speed < 1) return { value: speed * 1000, unit: 'Kbps' };
-  if (speed >= 1000) return { value: speed / 1000, unit: 'Gbps' };
+  if (speed < 1) {return { value: speed * 1000, unit: 'Kbps' };}
+  if (speed >= 1000) {return { value: speed / 1000, unit: 'Gbps' };}
   return { value: speed, unit: 'Mbps' };
 }
 
 function getPingDisplay(pingMs: number): { value: string; unit: string } {
-  if (pingMs < 1) return { value: (pingMs * 1000).toFixed(0), unit: 'μs' };
-  if (pingMs >= 1000) return { value: (pingMs / 1000).toFixed(1), unit: 's' };
+  if (pingMs < 1) {return { value: (pingMs * 1000).toFixed(0), unit: 'μs' };}
+  if (pingMs >= 1000) {return { value: (pingMs / 1000).toFixed(1), unit: 's' };}
   return { value: pingMs.toFixed(0), unit: 'ms' };
 }
 
 function getGaugeMax(speed: number): number {
-  if (speed <= 0) return 100;
-  if (speed <= 10) return 10;
-  if (speed <= 25) return 25;
-  if (speed <= 50) return 50;
-  if (speed <= 100) return 100;
-  if (speed <= 250) return 250;
-  if (speed <= 500) return 500;
-  if (speed <= 1000) return 1000;
+  if (speed <= 0) {return 100;}
+  if (speed <= 10) {return 10;}
+  if (speed <= 25) {return 25;}
+  if (speed <= 50) {return 50;}
+  if (speed <= 100) {return 100;}
+  if (speed <= 250) {return 250;}
+  if (speed <= 500) {return 500;}
+  if (speed <= 1000) {return 1000;}
   return Math.ceil(speed / 1000) * 1000;
 }
 
 function getPingGaugeMax(pingMs: number): number {
-  if (pingMs <= 0) return 50;
-  if (pingMs <= 5) return 5;
-  if (pingMs <= 10) return 10;
-  if (pingMs <= 20) return 20;
-  if (pingMs <= 50) return 50;
-  if (pingMs <= 100) return 100;
-  if (pingMs <= 200) return 200;
-  if (pingMs <= 500) return 500;
+  if (pingMs <= 0) {return 50;}
+  if (pingMs <= 5) {return 5;}
+  if (pingMs <= 10) {return 10;}
+  if (pingMs <= 20) {return 20;}
+  if (pingMs <= 50) {return 50;}
+  if (pingMs <= 100) {return 100;}
+  if (pingMs <= 200) {return 200;}
+  if (pingMs <= 500) {return 500;}
   return Math.ceil(pingMs / 100) * 100;
 }
 
@@ -75,7 +75,8 @@ export function SpeedGauge(props: SpeedGaugeProps) {
   const angle = (gaugePercentage / 100) * 180;
   const arcLength = Math.PI * 80;
 
-  const isTesting = phase === 'ping' || phase === 'download' || phase === 'upload';
+  const isTesting =
+    phase === 'ping' || phase === 'download' || phase === 'upload';
   const arcColor = isTesting ? '#00f0ff' : getStrokeColor(gaugePercentage);
 
   const phaseLabels = {
@@ -96,7 +97,9 @@ export function SpeedGauge(props: SpeedGaugeProps) {
             <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-neon" />
           </span>
         )}
-        <span className={`font-mono text-xs tracking-widest uppercase transition-colors ${isTesting ? 'text-cyan-neon' : 'text-slate-500'}`}>
+        <span
+          className={`font-mono text-xs tracking-widest uppercase transition-colors ${isTesting ? 'text-cyan-neon' : 'text-slate-500'}`}
+        >
           {phaseLabels[phase]}
         </span>
       </div>
@@ -104,7 +107,9 @@ export function SpeedGauge(props: SpeedGaugeProps) {
       {/* SVG Gauge */}
       <div className="relative h-64 w-64 sm:h-80 sm:w-80">
         {/* Outer glow ring */}
-        <div className={`absolute inset-0 rounded-full transition-opacity duration-500 ${isTesting ? 'opacity-100' : 'opacity-0'}`}>
+        <div
+          className={`absolute inset-0 rounded-full transition-opacity duration-500 ${isTesting ? 'opacity-100' : 'opacity-0'}`}
+        >
           <div className="absolute inset-4 rounded-full border border-cyan-neon/10 blur-sm" />
         </div>
 
@@ -232,12 +237,12 @@ export function SpeedGauge(props: SpeedGaugeProps) {
             style={{ fontSize: '9px', fontFamily: 'monospace' }}
           >
             {isPing
-              ? gaugeMax >= 1000
+              ? (gaugeMax >= 1000
                 ? `${gaugeMax / 1000}s`
-                : `${gaugeMax}ms`
-              : gaugeMax >= 1000
+                : `${gaugeMax}ms`)
+              : (gaugeMax >= 1000
                 ? `${gaugeMax / 1000}G`
-                : gaugeMax}
+                : gaugeMax)}
           </text>
 
           {/* Speed value with glow */}
@@ -246,7 +251,11 @@ export function SpeedGauge(props: SpeedGaugeProps) {
             y="72"
             textAnchor="middle"
             fill="white"
-            style={{ fontSize: '36px', fontWeight: 'bold', fontFamily: 'monospace' }}
+            style={{
+              fontSize: '36px',
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+            }}
             filter="url(#neon-glow)"
             opacity="0.2"
           >
@@ -257,7 +266,11 @@ export function SpeedGauge(props: SpeedGaugeProps) {
             y="72"
             textAnchor="middle"
             fill="white"
-            style={{ fontSize: '36px', fontWeight: 'bold', fontFamily: 'monospace' }}
+            style={{
+              fontSize: '36px',
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+            }}
           >
             {displayValue}
           </text>
@@ -267,7 +280,11 @@ export function SpeedGauge(props: SpeedGaugeProps) {
             textAnchor="middle"
             fill="#00f0ff"
             opacity="0.8"
-            style={{ fontSize: '12px', fontFamily: 'monospace', letterSpacing: '2px' }}
+            style={{
+              fontSize: '12px',
+              fontFamily: 'monospace',
+              letterSpacing: '2px',
+            }}
           >
             {displayUnit}
           </text>
@@ -283,7 +300,7 @@ export function SpeedGauge(props: SpeedGaugeProps) {
               style={{ width: `${progress}%` }}
             />
             {/* Shimmer effect */}
-            <div className="absolute inset-0 animate-shimmer" />
+            <div className="animate-shimmer absolute inset-0" />
           </div>
           <div className="mt-2 flex justify-between font-mono text-[10px] text-slate-600">
             <span>PING</span>

@@ -107,9 +107,10 @@ export function ServersPage() {
     void loadServers();
   }, []);
 
-  const bgClass = resolvedTheme === 'dark'
-    ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900'
-    : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100';
+  const bgClass =
+    resolvedTheme === 'dark'
+      ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900'
+      : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100';
 
   if (loading) {
     return (

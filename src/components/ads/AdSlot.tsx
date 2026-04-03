@@ -15,12 +15,13 @@ export function AdSlot(props: AdSlotProps) {
   const hasLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (!AdConfig.enabled || !AdConfig.googleAdSense.id || hasLoadedRef.current) return;
+    if (!AdConfig.enabled || !AdConfig.googleAdSense.id || hasLoadedRef.current)
+      {return;}
     hasLoadedRef.current = true;
 
     try {
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).adsbygoogle = (window as any).adsbygoogle || [];
+      (window as any).adsbygoogle = (window as any).adsbygoogle ?? [];
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).adsbygoogle.push({});
     } catch {
@@ -28,7 +29,7 @@ export function AdSlot(props: AdSlotProps) {
     }
   }, []);
 
-  if (!AdConfig.enabled) return null;
+  if (!AdConfig.enabled) {return null;}
 
   const sizeMap = {
     horizontal: { width: '100%', height: '90px', minWidth: '320px' },

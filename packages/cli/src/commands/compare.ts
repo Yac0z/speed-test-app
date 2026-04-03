@@ -1,9 +1,9 @@
-import ora from 'ora';
 import chalk from 'chalk';
-import { runSpeedTest, getResults } from '@speedtest/core';
+import ora from 'ora';
+import { runSpeedTest, getResults } from 'speedtest-core';
 import { formatCompareTable } from '../formatters.js';
 
-interface CompareOptions {
+type CompareOptions = {
   last: number;
 }
 
@@ -11,7 +11,9 @@ export async function compareCommand(opts: CompareOptions): Promise<void> {
   const results = getResults(opts.last);
 
   if (results.length === 0) {
-    console.log(chalk.yellow('No saved results found. Run a speed test first.'));
+    console.log(
+      chalk.yellow('No saved results found. Run a speed test first.')
+    );
     return;
   }
 
@@ -37,6 +39,8 @@ export async function compareCommand(opts: CompareOptions): Promise<void> {
 
   spinner.succeed('Speed test complete!');
 
-  console.log(chalk.bold.cyan(`\nComparison (vs average of ${results.length} tests)`));
+  console.log(
+    chalk.bold.cyan(`\nComparison (vs average of ${results.length} tests)`)
+  );
   console.log(formatCompareTable(current, avg));
 }

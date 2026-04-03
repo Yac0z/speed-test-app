@@ -1,7 +1,7 @@
-import ora from 'ora';
 import chalk from 'chalk';
 import Table from 'cli-table3';
-import { getConnectionInfo } from '@speedtest/core';
+import ora from 'ora';
+import { getConnectionInfo } from 'speedtest-core';
 
 export async function infoCommand(): Promise<void> {
   const spinner = ora('Fetching connection info...').start();
@@ -21,7 +21,7 @@ export async function infoCommand(): Promise<void> {
       ['ISP', info.isp],
       ['City', `${info.city}, ${info.region}`],
       ['Country', info.country],
-      ['Coordinates', `${info.latitude}, ${info.longitude}`],
+      ['Coordinates', `${info.latitude}, ${info.longitude}`]
     );
 
     console.log(chalk.bold.cyan('\nConnection Information'));

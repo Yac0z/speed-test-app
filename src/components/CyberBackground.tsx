@@ -18,10 +18,10 @@ export function CyberBackground() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {return;}
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {return;}
 
     let particles: Particle[] = [];
     let gridOffset = 0;
@@ -35,7 +35,10 @@ export function CyberBackground() {
 
     const initParticles = () => {
       particles = [];
-      const count = Math.min(Math.floor((canvas.width * canvas.height) / 15000), 120);
+      const count = Math.min(
+        Math.floor((canvas.width * canvas.height) / 15_000),
+        120
+      );
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
@@ -56,14 +59,22 @@ export function CyberBackground() {
       ctx.strokeStyle = 'rgba(0, 240, 255, 0.03)';
       ctx.lineWidth = 1;
 
-      for (let x = -gridSize + gridOffset; x < canvas.width + gridSize; x += gridSize) {
+      for (
+        let x = -gridSize + gridOffset;
+        x < canvas.width + gridSize;
+        x += gridSize
+      ) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, canvas.height);
         ctx.stroke();
       }
 
-      for (let y = -gridSize + gridOffset; y < canvas.height + gridSize; y += gridSize) {
+      for (
+        let y = -gridSize + gridOffset;
+        y < canvas.height + gridSize;
+        y += gridSize
+      ) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(canvas.width, y);
@@ -76,20 +87,22 @@ export function CyberBackground() {
         p.x += p.vx;
         p.y += p.vy;
 
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
+        if (p.x < 0) {p.x = canvas.width;}
+        if (p.x > canvas.width) {p.x = 0;}
+        if (p.y < 0) {p.y = canvas.height;}
+        if (p.y > canvas.height) {p.y = 0;}
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        const alpha = Math.floor(p.opacity * 255).toString(16).padStart(2, '0');
+        const alpha = Math.floor(p.opacity * 255)
+          .toString(16)
+          .padStart(2, '0');
         ctx.fillStyle = p.color + alpha;
         ctx.fill();
 
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
-          if (!p2) continue;
+          if (!p2) {continue;}
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);

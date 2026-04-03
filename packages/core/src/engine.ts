@@ -1,12 +1,12 @@
 /** Cloudflare speed test engine using direct HTTP requests to edge endpoints. */
 
 import { EventEmitter } from 'node:events';
-import {
-  type SpeedTestResult,
-  type TestConfig,
-  type TestPhase,
-  type PhaseChangeCallback,
-  type ProgressCallback,
+import type {
+  SpeedTestResult,
+  TestConfig,
+  TestPhase,
+  PhaseChangeCallback,
+  ProgressCallback,
 } from './types.js';
 
 const DOWNLOAD_URL = 'https://speed.cloudflare.com/__down';
@@ -35,7 +35,7 @@ class TestEmitter extends EventEmitter {
  */
 async function measurePing(
   count: number,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ): Promise<{ ping: number; jitter: number }> {
   const latencies: number[] = [];
 
@@ -78,7 +78,8 @@ async function measurePing(
         diffs.push(Math.abs(curr - prev));
       }
     }
-    jitter = diffs.length > 0 ? diffs.reduce((a, b) => a + b, 0) / diffs.length : 0;
+    jitter =
+      diffs.length > 0 ? diffs.reduce((a, b) => a + b, 0) / diffs.length : 0;
   }
 
   return { ping, jitter };
@@ -91,7 +92,7 @@ async function measureDownload(
   durationMs: number,
   parallelConnections: number,
   signal?: AbortSignal,
-  onProgress?: ProgressCallback,
+  onProgress?: ProgressCallback
 ): Promise<number> {
   const startTime = performance.now();
   let totalBytes = 0;
@@ -139,7 +140,9 @@ async function measureDownload(
   }
 
   // Run parallel connections
-  const workers = Array.from({ length: parallelConnections }, () => downloadChunk());
+  const workers = Array.from({ length: parallelConnections },  async () =>
+    downloadChunk()
+  );
   await Promise.allSettled(workers);
 
   const elapsedSeconds = (performance.now() - startTime) / 1000;
@@ -156,7 +159,7 @@ async function measureUpload(
   durationMs: number,
   parallelConnections: number,
   signal?: AbortSignal,
-  onProgress?: ProgressCallback,
+  onProgress?: ProgressCallback
 ): Promise<number> {
   const startTime = performance.now();
   let totalBytes = 0;
@@ -205,7 +208,9 @@ async function measureUpload(
   }
 
   // Run parallel connections
-  const workers = Array.from({ length: parallelConnections }, () => uploadChunk());
+  const workers = Array.from({ length: parallelConnections },  async () =>
+    uploadChunk()
+  );
   await Promise.allSettled(workers);
 
   const elapsedSeconds = (performance.now() - startTime) / 1000;
@@ -261,8 +266,8 @@ export async function runSpeedTest(options?: {
       case 'ping': {
         emitter.emit('phaseChange', 'ping' as TestPhase);
         const pingResult = await measurePing(20, signal);
-        ping = pingResult.ping;
-        jitter = pingResult.jitter;
+        ({ ping } = pingResult);
+        ({ jitter } = pingResult);
         break;
       }
       case 'download': {
@@ -271,7 +276,7 @@ export async function runSpeedTest(options?: {
           durationMs,
           config.connections,
           signal,
-          options?.onProgress,
+          options?.onProgress
         );
         break;
       }
@@ -281,7 +286,7 @@ export async function runSpeedTest(options?: {
           durationMs,
           config.connections,
           signal,
-          options?.onProgress,
+          options?.onProgress
         );
         break;
       }

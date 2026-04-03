@@ -1,20 +1,46 @@
 {
-  "name": "@speedtest/core",
+  "name": "speedtest-core",
   "version": "1.0.0",
   "description": "Shared speed test engine and utilities",
+  "keywords": [
+    "bandwidth",
+    "internet-speed",
+    "network",
+    "speedtest"
+  ],
+  "homepage": "https://github.com/Yac0z/speed-test-app",
+  "bugs": {
+    "url": "https://github.com/Yac0z/speed-test-app/issues"
+  },
+  "license": "MIT",
+  "author": "Yacin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yac0z/speed-test-app.git"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@cloudflare/speedtest": "^1.7.0"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
     "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
     "vitest": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

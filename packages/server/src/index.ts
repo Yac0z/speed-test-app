@@ -1,18 +1,15 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
-  runSpeedTestSchema,
-  runSpeedTestHandler,
-} from './tools/run_speed_test.js';
-import {
-  getHistorySchema,
-  getHistoryHandler,
-} from './tools/get_history.js';
-import { getConnectionInfoHandler } from './tools/get_connection_info.js';
-import {
   compareResultsSchema,
   compareResultsHandler,
 } from './tools/compare_results.js';
+import { getConnectionInfoHandler } from './tools/get_connection_info.js';
+import { getHistorySchema, getHistoryHandler } from './tools/get_history.js';
+import {
+  runSpeedTestSchema,
+  runSpeedTestHandler,
+} from './tools/run_speed_test.js';
 
 const server = new McpServer({
   name: 'speedtest-mcp',
@@ -45,7 +42,7 @@ server.tool(
         isError: true,
       };
     }
-  },
+  }
 );
 
 server.tool(
@@ -74,7 +71,7 @@ server.tool(
         isError: true,
       };
     }
-  },
+  }
 );
 
 server.tool(
@@ -103,7 +100,7 @@ server.tool(
         isError: true,
       };
     }
-  },
+  }
 );
 
 server.tool(
@@ -132,7 +129,7 @@ server.tool(
         isError: true,
       };
     }
-  },
+  }
 );
 
 async function main() {
@@ -143,7 +140,7 @@ async function main() {
 
 main().catch((error) => {
   process.stderr.write(
-    `[speedtest-mcp] Fatal error: ${error instanceof Error ? error.message : 'Unknown error'}\n`,
+    `[speedtest-mcp] Fatal error: ${error instanceof Error ? error.message : 'Unknown error'}\n`
   );
   process.exit(1);
 });

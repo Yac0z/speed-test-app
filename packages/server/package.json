@@ -1,25 +1,52 @@
 {
-  "name": "@speedtest/server",
+  "name": "speedtest-mcp",
   "version": "1.0.0",
-  "description": "MCP server for speed test capabilities",
-  "type": "module",
+  "description": "MCP server for speed test capabilities - Run speed tests from AI assistants",
+  "keywords": [
+    "ai",
+    "claude",
+    "internet-speed",
+    "mcp",
+    "model-context-protocol",
+    "openai",
+    "speedtest"
+  ],
+  "homepage": "https://github.com/Yac0z/speed-test-app",
+  "bugs": {
+    "url": "https://github.com/Yac0z/speed-test-app/issues"
+  },
+  "license": "MIT",
+  "author": "Yacin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yac0z/speed-test-app.git"
+  },
   "bin": {
     "speedtest-mcp": "./dist/index.js"
   },
+  "type": "module",
+  "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
-    "pkg": "pkg . --targets latest-win-x64 --out-path ../dist-bin --public"
+    "pkg": "pkg . --targets latest-win-x64,latest-linux-x64,latest-macos-x64 --out-path dist-bin --public",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@speedtest/core": "file:../core",
+    "@cloudflare/speedtest": "^1.7.0",
     "@modelcontextprotocol/sdk": "^1.12.1",
+    "speedtest-core": "1.0.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
     "@types/node": "^20.0.0",
-    "tsx": "^4.7.0"
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "vitest": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

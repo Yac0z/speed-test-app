@@ -1,9 +1,9 @@
 /** File-based storage for speed test results. */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { homedir } from 'node:os';
-import { type SpeedTestResult } from './types.js';
+import { join } from 'node:path';
+import type { SpeedTestResult } from './types.js';
 
 const RESULTS_DIR = join(homedir(), '.speedtest');
 const RESULTS_FILE = join(RESULTS_DIR, 'results.json');
@@ -31,7 +31,7 @@ function readAllResults(): SpeedTestResult[] {
   }
 
   try {
-    const data = readFileSync(RESULTS_FILE, 'utf-8');
+    const data = readFileSync(RESULTS_FILE, 'utf8');
     const parsed = JSON.parse(data) as SpeedTestResult[];
     return Array.isArray(parsed) ? parsed : [];
   } catch {
@@ -46,7 +46,7 @@ function readAllResults(): SpeedTestResult[] {
  */
 function writeAllResults(results: SpeedTestResult[]): void {
   ensureDir();
-  writeFileSync(RESULTS_FILE, JSON.stringify(results, null, 2), 'utf-8');
+  writeFileSync(RESULTS_FILE, JSON.stringify(results, null, 2), 'utf8');
 }
 
 /**
@@ -64,7 +64,8 @@ function writeAllResults(results: SpeedTestResult[]): void {
 export function getResults(limit?: number): SpeedTestResult[] {
   const results = readAllResults();
   // Results are stored newest first
-  const count = limit !== undefined ? Math.min(limit, MAX_RESULTS) : MAX_RESULTS;
+  const count =
+    limit !== undefined ? Math.min(limit, MAX_RESULTS) : MAX_RESULTS;
   return results.slice(0, count);
 }
 
@@ -81,7 +82,7 @@ export function getResults(limit?: number): SpeedTestResult[] {
  * ```
  */
 export function saveResult(
-  result: Omit<SpeedTestResult, 'timestamp'>,
+  result: Omit<SpeedTestResult, 'timestamp'>
 ): SpeedTestResult {
   const allResults = readAllResults();
   const newResult: SpeedTestResult = {
@@ -113,7 +114,7 @@ export function saveResult(
 export function deleteAllResults(): void {
   ensureDir();
   if (existsSync(RESULTS_FILE)) {
-    writeFileSync(RESULTS_FILE, '[]', 'utf-8');
+    writeFileSync(RESULTS_FILE, '[]', 'utf8');
   }
 }
 
@@ -134,19 +135,20 @@ export function exportResults(format: 'json' | 'csv'): string {
   const results = readAllResults();
 
   switch (format) {
-    case 'json':
+    case 'json': {
       return JSON.stringify(results, null, 2);
+    }
 
     case 'csv': {
       const header = 'timestamp,download_mbps,upload_mbps,ping_ms,jitter_ms';
       const rows = results.map(
-        (r) =>
-          `${r.timestamp},${r.download},${r.upload},${r.ping},${r.jitter}`,
+        (r) => `${r.timestamp},${r.download},${r.upload},${r.ping},${r.jitter}`
       );
       return [header, ...rows].join('\n');
     }
 
-    default:
+    default: {
       throw new Error(`Unsupported export format: ${format satisfies never}`);
+    }
   }
 }
