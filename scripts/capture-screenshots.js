@@ -1,6 +1,6 @@
 const CDP = require('chrome-remote-interface');
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const SCREENSHOTS_DIR = path.join(__dirname, 'screenshots');
 if (!fs.existsSync(SCREENSHOTS_DIR)) {
@@ -25,9 +25,14 @@ async function run() {
     });
     await Page.navigate({ url: 'https://speed-test-app-nu.vercel.app/en' });
     await Page.loadEventFired();
-    await new Promise(r => setTimeout(r, 2000));
-    const { data: desktopPng } = await Page.captureScreenshot({ format: 'png' });
-    fs.writeFileSync(path.join(SCREENSHOTS_DIR, 'homepage-desktop.png'), Buffer.from(desktopPng, 'base64'));
+    await new Promise((r) => setTimeout(r, 2000));
+    const { data: desktopPng } = await Page.captureScreenshot({
+      format: 'png',
+    });
+    fs.writeFileSync(
+      path.join(SCREENSHOTS_DIR, 'homepage-desktop.png'),
+      Buffer.from(desktopPng, 'base64')
+    );
     console.log('  Saved: homepage-desktop.png');
 
     // === Screenshot 2: Mobile homepage ===
@@ -40,9 +45,12 @@ async function run() {
     });
     await Page.navigate({ url: 'https://speed-test-app-nu.vercel.app/en' });
     await Page.loadEventFired();
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 2000));
     const { data: mobilePng } = await Page.captureScreenshot({ format: 'png' });
-    fs.writeFileSync(path.join(SCREENSHOTS_DIR, 'homepage-mobile.png'), Buffer.from(mobilePng, 'base64'));
+    fs.writeFileSync(
+      path.join(SCREENSHOTS_DIR, 'homepage-mobile.png'),
+      Buffer.from(mobilePng, 'base64')
+    );
     console.log('  Saved: homepage-mobile.png');
 
     // === Screenshot 3: History page ===
@@ -53,20 +61,32 @@ async function run() {
       deviceScaleFactor: 1,
       mobile: false,
     });
-    await Page.navigate({ url: 'https://speed-test-app-nu.vercel.app/en/history' });
+    await Page.navigate({
+      url: 'https://speed-test-app-nu.vercel.app/en/history',
+    });
     await Page.loadEventFired();
-    await new Promise(r => setTimeout(r, 1000));
-    const { data: historyPng } = await Page.captureScreenshot({ format: 'png' });
-    fs.writeFileSync(path.join(SCREENSHOTS_DIR, 'history-page.png'), Buffer.from(historyPng, 'base64'));
+    await new Promise((r) => setTimeout(r, 1000));
+    const { data: historyPng } = await Page.captureScreenshot({
+      format: 'png',
+    });
+    fs.writeFileSync(
+      path.join(SCREENSHOTS_DIR, 'history-page.png'),
+      Buffer.from(historyPng, 'base64')
+    );
     console.log('  Saved: history-page.png');
 
     // === Screenshot 4: About page ===
     console.log('[4/5] Capturing about page...');
-    await Page.navigate({ url: 'https://speed-test-app-nu.vercel.app/en/about' });
+    await Page.navigate({
+      url: 'https://speed-test-app-nu.vercel.app/en/about',
+    });
     await Page.loadEventFired();
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 1000));
     const { data: aboutPng } = await Page.captureScreenshot({ format: 'png' });
-    fs.writeFileSync(path.join(SCREENSHOTS_DIR, 'about-page.png'), Buffer.from(aboutPng, 'base64'));
+    fs.writeFileSync(
+      path.join(SCREENSHOTS_DIR, 'about-page.png'),
+      Buffer.from(aboutPng, 'base64')
+    );
     console.log('  Saved: about-page.png');
 
     // === Performance Audit ===
@@ -103,17 +123,30 @@ async function run() {
       timestamp: new Date().toISOString(),
       url: 'https://speed-test-app-nu.vercel.app/en',
       viewport: '1280x800',
-      navigationTiming: timingResult.result.value || {},
+      navigationTiming: timingResult.result.value ?? {},
       runtimeMetrics: {
-        jsHeapSizeUsed: perfData.JSHeapUsedSize ? `${(perfData.JSHeapUsedSize / 1024 / 1024).toFixed(2)} MB` : 'N/A',
-        jsHeapTotal: perfData.JSHeapTotalSize ? `${(perfData.JSHeapTotalSize / 1024 / 1024).toFixed(2)} MB` : 'N/A',
-        domNodes: perfData.Nodes || 'N/A',
-        layoutCount: perfData.LayoutCount || 'N/A',
-        recalcStyleCount: perfData.RecalcStyleCount || 'N/A',
-        layoutDuration: perfData.LayoutDuration ? `${(perfData.LayoutDuration * 1000).toFixed(2)} ms` : 'N/A',
-        scriptDuration: perfData.ScriptDuration ? `${(perfData.ScriptDuration * 1000).toFixed(2)} ms` : 'N/A',
-        taskDuration: perfData.TaskDuration ? `${(perfData.TaskDuration * 1000).toFixed(2)} ms` : 'N/A',
-        fps: perfData.FramesCount && perfData.Duration ? `${(perfData.FramesCount / perfData.Duration).toFixed(1)} fps` : 'N/A',
+        jsHeapSizeUsed: perfData.JSHeapUsedSize
+          ? `${(perfData.JSHeapUsedSize / 1024 / 1024).toFixed(2)} MB`
+          : 'N/A',
+        jsHeapTotal: perfData.JSHeapTotalSize
+          ? `${(perfData.JSHeapTotalSize / 1024 / 1024).toFixed(2)} MB`
+          : 'N/A',
+        domNodes: perfData.Nodes ?? 'N/A',
+        layoutCount: perfData.LayoutCount ?? 'N/A',
+        recalcStyleCount: perfData.RecalcStyleCount ?? 'N/A',
+        layoutDuration: perfData.LayoutDuration
+          ? `${(perfData.LayoutDuration * 1000).toFixed(2)} ms`
+          : 'N/A',
+        scriptDuration: perfData.ScriptDuration
+          ? `${(perfData.ScriptDuration * 1000).toFixed(2)} ms`
+          : 'N/A',
+        taskDuration: perfData.TaskDuration
+          ? `${(perfData.TaskDuration * 1000).toFixed(2)} ms`
+          : 'N/A',
+        fps:
+          perfData.FramesCount && perfData.Duration
+            ? `${(perfData.FramesCount / perfData.Duration).toFixed(1)} fps`
+            : 'N/A',
       },
     };
 
@@ -127,10 +160,10 @@ async function run() {
     console.log(JSON.stringify(perfReport, null, 2));
 
     console.log('\nAll done! Screenshots saved to screenshots/');
-  } catch (err) {
-    console.error('Error:', err.message);
+  } catch (error) {
+    console.error('Error:', error.message);
   } finally {
-    if (client) await client.close();
+    if (client) {await client.close();}
   }
 }
 

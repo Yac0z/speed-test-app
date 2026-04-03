@@ -1,11 +1,11 @@
-import { Command } from 'commander';
 import chalk from 'chalk';
-import { createAbortController } from '@speedtest/core';
-import { runCommand } from './commands/run.js';
-import { historyCommand } from './commands/history.js';
+import { Command } from 'commander';
+import { createAbortController } from 'speedtest-core';
 import { compareCommand } from './commands/compare.js';
+import { historyCommand } from './commands/history.js';
 import { infoCommand } from './commands/info.js';
 import { monitorCommand } from './commands/monitor.js';
+import { runCommand } from './commands/run.js';
 
 const program = new Command();
 
@@ -23,7 +23,7 @@ program
   .action(async (opts) => {
     try {
       const format = opts.format as 'json' | 'table' | 'csv';
-      const duration = parseInt(opts.duration, 10);
+      const duration = Number.parseInt(opts.duration, 10);
 
       if (isNaN(duration) || duration < 1) {
         console.error(chalk.red('Error: Duration must be a positive number.'));
@@ -44,7 +44,11 @@ program
       if (error instanceof Error && error.name === 'AbortError') {
         console.log(chalk.yellow('\nTest cancelled.'));
       } else {
-        console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+        console.error(
+          chalk.red(
+            `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+          )
+        );
         process.exit(1);
       }
     }
@@ -59,7 +63,7 @@ program
   .action(async (opts) => {
     try {
       const format = opts.format as 'json' | 'table' | 'csv';
-      const limit = parseInt(opts.limit, 10);
+      const limit = Number.parseInt(opts.limit, 10);
 
       if (isNaN(limit) || limit < 1) {
         console.error(chalk.red('Error: Limit must be a positive number.'));
@@ -73,7 +77,11 @@ program
 
       await historyCommand({ limit, format, exportFile: opts.export });
     } catch (error) {
-      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      console.error(
+        chalk.red(
+          `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
+      );
       process.exit(1);
     }
   });
@@ -84,7 +92,7 @@ program
   .option('-l, --last <number>', 'Number of recent results to average', '10')
   .action(async (opts) => {
     try {
-      const last = parseInt(opts.last, 10);
+      const last = Number.parseInt(opts.last, 10);
 
       if (isNaN(last) || last < 1) {
         console.error(chalk.red('Error: Last must be a positive number.'));
@@ -96,7 +104,11 @@ program
       if (error instanceof Error && error.name === 'AbortError') {
         console.log(chalk.yellow('\nTest cancelled.'));
       } else {
-        console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+        console.error(
+          chalk.red(
+            `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+          )
+        );
         process.exit(1);
       }
     }
@@ -109,7 +121,11 @@ program
     try {
       await infoCommand();
     } catch (error) {
-      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      console.error(
+        chalk.red(
+          `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
+      );
       process.exit(1);
     }
   });
@@ -122,16 +138,24 @@ program
   .option('-a, --alert <threshold>', 'Alert expression (e.g., "download < 50")')
   .action(async (opts) => {
     try {
-      const interval = parseInt(opts.interval, 10);
+      const interval = Number.parseInt(opts.interval, 10);
 
       if (isNaN(interval) || interval < 1) {
         console.error(chalk.red('Error: Interval must be a positive number.'));
         process.exit(1);
       }
 
-      await monitorCommand({ interval, output: opts.output, alert: opts.alert });
+      await monitorCommand({
+        interval,
+        output: opts.output,
+        alert: opts.alert,
+      });
     } catch (error) {
-      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      console.error(
+        chalk.red(
+          `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
+      );
       process.exit(1);
     }
   });

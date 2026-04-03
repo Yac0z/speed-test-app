@@ -7,9 +7,15 @@ crypto.getRandomValues(randomBuffer);
 
 export function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const requestedSize = Number.parseInt(searchParams.get('size') ?? '25000000', 10);
+  const requestedSize = Number.parseInt(
+    searchParams.get('size') ?? '25000000',
+    10
+  );
   if (Number.isNaN(requestedSize)) {
-    return NextResponse.json({ error: 'Invalid size parameter' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Invalid size parameter' },
+      { status: 400 }
+    );
   }
   const size = Math.min(requestedSize, 100 * 1024 * 1024); // Cap at 100MB
 

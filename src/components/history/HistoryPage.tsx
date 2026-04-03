@@ -1,14 +1,22 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useState, useCallback } from 'react';
 import { DateFilter } from '@/components/history/DateFilter';
 import { ExportButton } from '@/components/history/ExportButton';
-import dynamic from 'next/dynamic';
 import { getResults, deleteAllResults } from '@/utils/SpeedTestStorage';
 
 const SpeedChart = dynamic(
-  () => import('@/components/history/SpeedChart').then(mod => ({ default: mod.SpeedChart })),
-  { loading: () => <div className="h-[300px] animate-pulse rounded-lg bg-slate-800/50" />, ssr: false }
+   async () =>
+    import('@/components/history/SpeedChart').then((mod) => ({
+      default: mod.SpeedChart,
+    })),
+  {
+    loading: () => (
+      <div className="h-[300px] animate-pulse rounded-lg bg-slate-800/50" />
+    ),
+    ssr: false,
+  }
 );
 import { StatsSummary } from '@/components/history/StatsSummary';
 
@@ -53,18 +61,28 @@ export function HistoryPage() {
   }, []);
 
   const filteredResults = results.filter((result) => {
-    if (dateRange === 'all') return true;
+    if (dateRange === 'all') {return true;}
     const now = new Date();
     const testDate = new Date(result.timestamp);
     const diffMs = now.getTime() - testDate.getTime();
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
     switch (dateRange) {
-      case '7d': return diffDays <= 7;
-      case '30d': return diffDays <= 30;
-      case '90d': return diffDays <= 90;
-      case '1y': return diffDays <= 365;
-      default: return true;
+      case '7d': {
+        return diffDays <= 7;
+      }
+      case '30d': {
+        return diffDays <= 30;
+      }
+      case '90d': {
+        return diffDays <= 90;
+      }
+      case '1y': {
+        return diffDays <= 365;
+      }
+      default: {
+        return true;
+      }
     }
   });
 
@@ -77,7 +95,10 @@ export function HistoryPage() {
             <div className="h-64 rounded-2xl bg-slate-800/50" />
             <div className="grid grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={`skeleton-${i}`} className="h-24 rounded-2xl bg-slate-800/50" />
+                <div
+                  key={`skeleton-${i}`}
+                  className="h-24 rounded-2xl bg-slate-800/50"
+                />
               ))}
             </div>
           </div>
@@ -96,7 +117,8 @@ export function HistoryPage() {
               Speed History
             </h1>
             <p className="mt-1 text-slate-400">
-              {filteredResults.length} test{filteredResults.length === 1 ? '' : 's'} recorded
+              {filteredResults.length} test
+              {filteredResults.length === 1 ? '' : 's'} recorded
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -107,7 +129,7 @@ export function HistoryPage() {
                 <button
                   type="button"
                   onClick={handleClearAll}
-                  className="rounded border border-red-500/30 px-3 py-2 text-xs font-mono text-red-400/80 transition-all hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-400"
+                  className="rounded border border-red-500/30 px-3 py-2 font-mono text-xs text-red-400/80 transition-all hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-400"
                 >
                   Clear All
                 </button>
@@ -143,11 +165,21 @@ export function HistoryPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-700/50">
-                      <th className="px-4 py-3 text-left text-slate-400">Date</th>
-                      <th className="px-4 py-3 text-right text-green-400">Download</th>
-                      <th className="px-4 py-3 text-right text-blue-400">Upload</th>
-                      <th className="px-4 py-3 text-right text-yellow-400">Ping</th>
-                      <th className="px-4 py-3 text-right text-purple-400">Jitter</th>
+                      <th className="px-4 py-3 text-left text-slate-400">
+                        Date
+                      </th>
+                      <th className="px-4 py-3 text-right text-green-400">
+                        Download
+                      </th>
+                      <th className="px-4 py-3 text-right text-blue-400">
+                        Upload
+                      </th>
+                      <th className="px-4 py-3 text-right text-yellow-400">
+                        Ping
+                      </th>
+                      <th className="px-4 py-3 text-right text-purple-400">
+                        Jitter
+                      </th>
                     </tr>
                   </thead>
                   <tbody>

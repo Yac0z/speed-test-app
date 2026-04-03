@@ -1,6 +1,6 @@
+import type { SpeedTestResult } from '@speedtest/core';
 import chalk from 'chalk';
 import Table from 'cli-table3';
-import { type SpeedTestResult } from '@speedtest/core';
 
 export function formatTable(result: SpeedTestResult): string {
   const table = new Table({
@@ -14,13 +14,15 @@ export function formatTable(result: SpeedTestResult): string {
     ['Upload', `${chalk.green.bold(result.upload.toFixed(2))} Mbps`],
     ['Ping', `${chalk.yellow.bold(result.ping.toFixed(2))} ms`],
     ['Jitter', `${chalk.yellow.bold(result.jitter.toFixed(2))} ms`],
-    ['Timestamp', chalk.dim(result.timestamp)],
+    ['Timestamp', chalk.dim(result.timestamp)]
   );
 
   return table.toString();
 }
 
-export function formatJson(result: SpeedTestResult | SpeedTestResult[]): string {
+export function formatJson(
+  result: SpeedTestResult | SpeedTestResult[]
+): string {
   return JSON.stringify(result, null, 2);
 }
 
@@ -28,7 +30,7 @@ export function formatCsv(result: SpeedTestResult | SpeedTestResult[]): string {
   const results = Array.isArray(result) ? result : [result];
   const header = 'timestamp,download_mbps,upload_mbps,ping_ms,jitter_ms';
   const rows = results.map(
-    (r) => `${r.timestamp},${r.download},${r.upload},${r.ping},${r.jitter}`,
+    (r) => `${r.timestamp},${r.download},${r.upload},${r.ping},${r.jitter}`
   );
   return [header, ...rows].join('\n');
 }
@@ -68,10 +70,10 @@ export function formatHistoryTable(results: SpeedTestResult[]): string {
 
 export function formatCompareTable(
   current: SpeedTestResult,
-  avg: SpeedTestResult,
+  avg: SpeedTestResult
 ): string {
   const pctChange = (curr: number, avg: number): string => {
-    if (avg === 0) return chalk.gray('N/A');
+    if (avg === 0) {return chalk.gray('N/A');}
     const change = ((curr - avg) / avg) * 100;
     const sign = change >= 0 ? '+' : '';
     const color = change >= 0 ? chalk.green : chalk.red;
@@ -113,7 +115,7 @@ export function formatCompareTable(
       `${current.jitter.toFixed(2)} ms`,
       `${avg.jitter.toFixed(2)} ms`,
       pctChange(current.jitter, avg.jitter),
-    ],
+    ]
   );
 
   return table.toString();

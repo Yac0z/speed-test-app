@@ -28,7 +28,5 @@ export default async function About(props: AboutPageProps) {
     namespace: 'About',
   });
 
-  return (
-    <p>{t('about_paragraph')}</p>
-  );
+  return <p>{t('about_paragraph')}</p>;
 }

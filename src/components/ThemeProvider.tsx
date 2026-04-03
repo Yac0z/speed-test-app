@@ -13,12 +13,14 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function getSystemTheme() {
-  if (typeof window === 'undefined') return 'dark';
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  if (typeof window === 'undefined') {return 'dark';}
+  return window.matchMedia('(prefers-color-scheme: light)').matches
+    ? 'light'
+    : 'dark';
 }
 
 function resolveTheme(theme: Theme): 'light' | 'dark' {
-  if (theme === 'system') return getSystemTheme();
+  if (theme === 'system') {return getSystemTheme();}
   return theme;
 }
 
@@ -29,28 +31,27 @@ export function ThemeProvider(props: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem('speed-test-theme');
-    const initial = (stored === 'light' || stored === 'dark' || stored === 'system') ? stored : 'dark';
+    const initial =
+      stored === 'light' || stored === 'dark' || stored === 'system'
+        ? stored
+        : 'dark';
     setThemeState(initial);
     setResolvedTheme(resolveTheme(initial));
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted) {return;}
 
     const resolved = resolveTheme(theme);
     setResolvedTheme(resolved);
 
     const root = document.documentElement;
-    if (resolved === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    root.classList.toggle('dark', resolved === 'dark');
   }, [theme, mounted]);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted) {return;}
 
     const media = window.matchMedia('(prefers-color-scheme: light)');
     const handler = () => {
@@ -59,7 +60,7 @@ export function ThemeProvider(props: { children: React.ReactNode }) {
       }
     };
     media.addEventListener('change', handler);
-    return () => media.removeEventListener('change', handler);
+    return () =>{  media.removeEventListener('change', handler); };
   }, [theme, mounted]);
 
   const setTheme = (newTheme: Theme) => {
@@ -68,7 +69,13 @@ export function ThemeProvider(props: { children: React.ReactNode }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme: mounted ? resolvedTheme : 'dark' }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        setTheme,
+        resolvedTheme: mounted ? resolvedTheme : 'dark',
+      }}
+    >
       {props.children}
     </ThemeContext.Provider>
   );

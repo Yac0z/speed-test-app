@@ -3,16 +3,17 @@ import type { Metadata, Viewport } from 'next';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { AdScript } from '@/components/ads/AdScript';
 import { AdConsentBanner } from '@/components/ads/AdConsentBanner';
+import { AdScript } from '@/components/ads/AdScript';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { generateSeoMetadata, generateJsonLd } from '@/libs/Seo';
 import { routing } from '@/libs/I18nRouting';
+import { generateSeoMetadata, generateJsonLd } from '@/libs/Seo';
 import '@/styles/global.css';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Free Internet Speed Test',
-  description: 'Test your internet connection speed with precision. Measure download, upload, and ping latency. Track your speed history over time.',
+  description:
+    'Test your internet connection speed with precision. Measure download, upload, and ping latency. Track your speed history over time.',
 });
 
 export const viewport: Viewport = {

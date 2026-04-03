@@ -10,17 +10,19 @@ export type SpeedTestResult = {
 };
 
 export function getResults(): SpeedTestResult[] {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === 'undefined') {return [];}
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return [];
+    if (!data) {return [];}
     return JSON.parse(data) as SpeedTestResult[];
   } catch {
     return [];
   }
 }
 
-export function saveResult(result: Omit<SpeedTestResult, 'id' | 'timestamp'>): SpeedTestResult {
+export function saveResult(
+  result: Omit<SpeedTestResult, 'id' | 'timestamp'>
+): SpeedTestResult {
   const results = getResults();
   const newResult: SpeedTestResult = {
     ...result,

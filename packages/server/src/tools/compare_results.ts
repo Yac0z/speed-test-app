@@ -1,6 +1,6 @@
+import type { TestPhase, SpeedTestResult } from 'speedtest-core';
+import { runSpeedTest, getResults, saveResult } from 'speedtest-core';
 import { z } from 'zod';
-import type { TestPhase, SpeedTestResult } from '@speedtest/core';
-import { runSpeedTest, getResults, saveResult } from '@speedtest/core';
 
 export const compareResultsSchema = z.object({
   last_n: z
@@ -12,16 +12,14 @@ export const compareResultsSchema = z.object({
 });
 
 export async function compareResultsHandler(
-  args: z.infer<typeof compareResultsSchema>,
+  args: z.infer<typeof compareResultsSchema>
 ) {
   const { last_n } = args;
 
   const history = getResults(last_n);
 
   if (history.length === 0) {
-    throw new Error(
-      'No saved results found. Run a speed test first.',
-    );
+    throw new Error('No saved results found. Run a speed test first.');
   }
 
   const avg = {
@@ -54,31 +52,28 @@ export async function compareResultsHandler(
   });
 
   const pctChange = (curr: number, avg: number): string => {
-    if (avg === 0) return 'N/A';
+    if (avg === 0) {return 'N/A';}
     const change = ((curr - avg) / avg) * 100;
     const sign = change >= 0 ? '+' : '';
     return `${sign}${change.toFixed(1)}%`;
   };
 
-  const downloadChange = pctChange(
-    current.download,
-    avg.download,
-  );
+  const downloadChange = pctChange(current.download, avg.download);
   const uploadChange = pctChange(current.upload, avg.upload);
   const pingChange = pctChange(current.ping, avg.ping);
 
   const summaryParts: string[] = [];
-  if (parseFloat(downloadChange) >= 0) {
+  if (Number.parseFloat(downloadChange) >= 0) {
     summaryParts.push(`Download improved ${downloadChange}`);
   } else {
     summaryParts.push(`Download decreased ${downloadChange}`);
   }
-  if (parseFloat(uploadChange) >= 0) {
+  if (Number.parseFloat(uploadChange) >= 0) {
     summaryParts.push(`upload improved ${uploadChange}`);
   } else {
     summaryParts.push(`upload decreased ${uploadChange}`);
   }
-  if (parseFloat(pingChange) <= 0) {
+  if (Number.parseFloat(pingChange) <= 0) {
     summaryParts.push(`ping improved ${pingChange}`);
   } else {
     summaryParts.push(`ping decreased ${pingChange}`);

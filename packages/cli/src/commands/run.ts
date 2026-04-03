@@ -1,10 +1,10 @@
 import { writeFileSync } from 'node:fs';
-import ora from 'ora';
 import chalk from 'chalk';
-import { runSpeedTest, saveResult } from '@speedtest/core';
+import ora from 'ora';
+import { runSpeedTest, saveResult } from 'speedtest-core';
 import { formatTable, formatJson, formatCsv } from '../formatters.js';
 
-interface RunOptions {
+type RunOptions = {
   format: 'json' | 'table' | 'csv';
   duration: number;
   output?: string;
@@ -28,17 +28,20 @@ export async function runCommand(opts: RunOptions): Promise<void> {
 
   let output: string;
   switch (opts.format) {
-    case 'json':
+    case 'json': {
       output = formatJson(result);
       break;
-    case 'csv':
+    }
+    case 'csv': {
       output = formatCsv(result);
       break;
+    }
     case 'table':
-    default:
+    default: {
       console.log(chalk.bold.cyan('\nSpeed Test Results'));
       output = formatTable(result);
       break;
+    }
   }
 
   console.log(output);
@@ -51,6 +54,6 @@ export async function runCommand(opts: RunOptions): Promise<void> {
   });
 
   if (opts.output) {
-    writeFileSync(opts.output, formatJson(result), 'utf-8');
+    writeFileSync(opts.output, formatJson(result), 'utf8');
   }
 }

@@ -1,6 +1,6 @@
+import type { SpeedTestResult } from 'speedtest-core';
+import { getResults } from 'speedtest-core';
 import { z } from 'zod';
-import type { SpeedTestResult } from '@speedtest/core';
-import { getResults } from '@speedtest/core';
 
 export const getHistorySchema = z.object({
   limit: z
@@ -16,7 +16,9 @@ export const getHistorySchema = z.object({
     .describe('Only include results from last N days'),
 });
 
-export async function getHistoryHandler(args: z.infer<typeof getHistorySchema>) {
+export async function getHistoryHandler(
+  args: z.infer<typeof getHistorySchema>
+) {
   const { limit, days } = args;
 
   let results = getResults(limit);
@@ -38,9 +40,20 @@ export async function getHistoryHandler(args: z.infer<typeof getHistorySchema>) 
     count > 0
       ? {
           download:
-            results.reduce((sum: number, r: SpeedTestResult) => sum + r.download, 0) / count,
-          upload: results.reduce((sum: number, r: SpeedTestResult) => sum + r.upload, 0) / count,
-          ping: results.reduce((sum: number, r: SpeedTestResult) => sum + r.ping, 0) / count,
+            results.reduce(
+              (sum: number, r: SpeedTestResult) => sum + r.download,
+              0
+            ) / count,
+          upload:
+            results.reduce(
+              (sum: number, r: SpeedTestResult) => sum + r.upload,
+              0
+            ) / count,
+          ping:
+            results.reduce(
+              (sum: number, r: SpeedTestResult) => sum + r.ping,
+              0
+            ) / count,
         }
       : { download: 0, upload: 0, ping: 0 };
 

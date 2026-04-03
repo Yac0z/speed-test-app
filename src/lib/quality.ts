@@ -26,26 +26,26 @@ const GRADE_THRESHOLDS: GradeThreshold[] = [
 ];
 
 function normalizeDownload(value: number): number {
-  if (value >= 100) return 100;
-  if (value <= 0) return 0;
+  if (value >= 100) {return 100;}
+  if (value <= 0) {return 0;}
   return Math.min(100, (value / 100) * 100);
 }
 
 function normalizeUpload(value: number): number {
-  if (value >= 50) return 100;
-  if (value <= 0) return 0;
+  if (value >= 50) {return 100;}
+  if (value <= 0) {return 0;}
   return (value / 50) * 100;
 }
 
 function normalizePing(value: number): number {
-  if (value <= 20) return 100;
-  if (value >= 200) return 0;
+  if (value <= 20) {return 100;}
+  if (value >= 200) {return 0;}
   return 100 - ((value - 20) / 180) * 100;
 }
 
 function normalizeJitter(value: number): number {
-  if (value <= 5) return 100;
-  if (value >= 50) return 0;
+  if (value <= 5) {return 100;}
+  if (value >= 50) {return 0;}
   return 100 - ((value - 5) / 45) * 100;
 }
 
@@ -70,10 +70,13 @@ export function calculateQualityScore(input: QualityInput): QualityResult {
 
   const score = Math.round(weightedScore);
 
-  const gradeInfo = GRADE_THRESHOLDS.reduce<GradeThreshold>((acc, threshold) => {
-    if (score >= threshold.min) return threshold;
-    return acc;
-  }, GRADE_THRESHOLDS[GRADE_THRESHOLDS.length - 1]!);
+  const gradeInfo = GRADE_THRESHOLDS.reduce<GradeThreshold>(
+    (acc, threshold) => {
+      if (score >= threshold.min) {return threshold;}
+      return acc;
+    },
+    GRADE_THRESHOLDS.at(-1)!
+  );
 
   return {
     score,

@@ -17,7 +17,10 @@ export async function GET(request: Request) {
     const clientIp = getClientIp(request);
 
     if (!clientIp) {
-      return NextResponse.json({ error: 'Unable to detect IP' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Unable to detect IP' },
+        { status: 500 }
+      );
     }
 
     const response = await fetch(`https://ipapi.co/${clientIp}/json/`, {
@@ -45,6 +48,9 @@ export async function GET(request: Request) {
       longitude: data.longitude,
     });
   } catch {
-    return NextResponse.json({ error: 'ISP lookup unavailable' }, { status: 503 });
+    return NextResponse.json(
+      { error: 'ISP lookup unavailable' },
+      { status: 503 }
+    );
   }
 }

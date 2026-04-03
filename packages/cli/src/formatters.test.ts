@@ -1,6 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { formatTable, formatJson, formatCsv, formatHistoryTable, formatCompareTable } from './formatters.js';
 import type { SpeedTestResult } from '@speedtest/core';
+import { describe, it, expect } from 'vitest';
+import {
+  formatTable,
+  formatJson,
+  formatCsv,
+  formatHistoryTable,
+  formatCompareTable,
+} from './formatters.js';
 
 const mockResult: SpeedTestResult = {
   download: 245.32,
@@ -49,8 +55,12 @@ describe('Formatters', () => {
   describe('formatCsv', () => {
     it('formats a single result as CSV', () => {
       const output = formatCsv(mockResult);
-      expect(output).toContain('timestamp,download_mbps,upload_mbps,ping_ms,jitter_ms');
-      expect(output).toContain('2026-04-01T10:30:00.000Z,245.32,89.71,12.45,2.13');
+      expect(output).toContain(
+        'timestamp,download_mbps,upload_mbps,ping_ms,jitter_ms'
+      );
+      expect(output).toContain(
+        '2026-04-01T10:30:00.000Z,245.32,89.71,12.45,2.13'
+      );
     });
 
     it('formats multiple results as CSV', () => {
@@ -61,7 +71,9 @@ describe('Formatters', () => {
       const output = formatCsv(results);
       const lines = output.split('\n');
       expect(lines).toHaveLength(3);
-      expect(lines[0]).toBe('timestamp,download_mbps,upload_mbps,ping_ms,jitter_ms');
+      expect(lines[0]).toBe(
+        'timestamp,download_mbps,upload_mbps,ping_ms,jitter_ms'
+      );
     });
   });
 

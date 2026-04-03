@@ -24,7 +24,7 @@ export default function IndexPage() {
       <AdSlot
         slotId={process.env.NEXT_PUBLIC_AD_SLOT_FOOTER ?? ''}
         format="horizontal"
-        className="mx-auto mb-8 mt-8 max-w-4xl"
+        className="mx-auto mt-8 mb-8 max-w-4xl"
       />
     </>
   );

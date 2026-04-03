@@ -18,11 +18,9 @@ export function generateSeoMetadata(props: SeoProps = {}): Metadata {
     noindex = false,
   } = props;
 
-  const fullTitle = title
-    ? `${title} | ${SiteConfig.name}`
-    : SiteConfig.title;
+  const fullTitle = title ? `${title} | ${SiteConfig.name}` : SiteConfig.title;
 
-  const url = canonical || SiteConfig.url;
+  const url = canonical ?? SiteConfig.url;
 
   return {
     title: fullTitle,
@@ -68,9 +66,7 @@ export function generateSeoMetadata(props: SeoProps = {}): Metadata {
         { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
         { url: '/favicon.ico', sizes: 'any' },
       ],
-      apple: [
-        { url: '/apple-touch-icon.png', sizes: '180x180' },
-      ],
+      apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
     },
     manifest: '/site.webmanifest',
     verification: {
@@ -79,7 +75,10 @@ export function generateSeoMetadata(props: SeoProps = {}): Metadata {
   };
 }
 
-export function generateJsonLd(type: 'WebApplication' | 'WebPage' | 'Organization', props: Record<string, unknown>) {
+export function generateJsonLd(
+  type: 'WebApplication' | 'WebPage' | 'Organization',
+  props: Record<string, unknown>
+) {
   const base = {
     '@context': 'https://schema.org',
     '@type': type,
@@ -113,9 +112,9 @@ export function generateJsonLd(type: 'WebApplication' | 'WebPage' | 'Organizatio
 
   return {
     ...base,
-    name: props.name || SiteConfig.name,
-    description: props.description || SiteConfig.description,
-    url: props.url || SiteConfig.url,
+    name: props.name ?? SiteConfig.name,
+    description: props.description ?? SiteConfig.description,
+    url: props.url ?? SiteConfig.url,
     ...props,
   };
 }

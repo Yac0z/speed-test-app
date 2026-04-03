@@ -1,4 +1,8 @@
-import { getResults, saveResult, deleteAllResults } from '@/utils/SpeedTestStorage';
+import {
+  getResults,
+  saveResult,
+  deleteAllResults,
+} from '@/utils/SpeedTestStorage';
 
 export async function GET() {
   const results = getResults();
@@ -19,19 +23,31 @@ export async function POST(request: Request) {
 
   const record = body as Record<string, unknown>;
   const download =
-    'download' in record && typeof record.download === 'number' && record.download >= 0 && record.download <= 10_000
+    'download' in record &&
+    typeof record.download === 'number' &&
+    record.download >= 0 &&
+    record.download <= 10_000
       ? record.download
       : 0;
   const upload =
-    'upload' in record && typeof record.upload === 'number' && record.upload >= 0 && record.upload <= 10_000
+    'upload' in record &&
+    typeof record.upload === 'number' &&
+    record.upload >= 0 &&
+    record.upload <= 10_000
       ? record.upload
       : 0;
   const ping =
-    'ping' in record && typeof record.ping === 'number' && record.ping >= 0 && record.ping <= 10_000
+    'ping' in record &&
+    typeof record.ping === 'number' &&
+    record.ping >= 0 &&
+    record.ping <= 10_000
       ? record.ping
       : 0;
   const jitter =
-    'jitter' in record && typeof record.jitter === 'number' && record.jitter >= 0 && record.jitter <= 5_000
+    'jitter' in record &&
+    typeof record.jitter === 'number' &&
+    record.jitter >= 0 &&
+    record.jitter <= 5000
       ? record.jitter
       : 0;
 

@@ -1,7 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  rmSync,
+} from 'node:fs';
 import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 const RESULTS_DIR = join(homedir(), '.speedtest-test');
 const RESULTS_FILE = join(RESULTS_DIR, 'results.json');
@@ -18,7 +24,7 @@ function readAllResults() {
     return [];
   }
   try {
-    const data = readFileSync(RESULTS_FILE, 'utf-8');
+    const data = readFileSync(RESULTS_FILE, 'utf8');
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
   } catch {
@@ -28,7 +34,7 @@ function readAllResults() {
 
 function writeAllResults(results: unknown[]) {
   ensureDir();
-  writeFileSync(RESULTS_FILE, JSON.stringify(results, null, 2), 'utf-8');
+  writeFileSync(RESULTS_FILE, JSON.stringify(results, null, 2), 'utf8');
 }
 
 function cleanup() {
@@ -57,8 +63,20 @@ describe('Storage', () => {
 
     it('returns all results when no limit specified', () => {
       const results = [
-        { download: 100, upload: 50, ping: 10, jitter: 2, timestamp: '2026-01-01T00:00:00.000Z' },
-        { download: 120, upload: 60, ping: 12, jitter: 3, timestamp: '2026-01-02T00:00:00.000Z' },
+        {
+          download: 100,
+          upload: 50,
+          ping: 10,
+          jitter: 2,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+        {
+          download: 120,
+          upload: 60,
+          ping: 12,
+          jitter: 3,
+          timestamp: '2026-01-02T00:00:00.000Z',
+        },
       ];
       writeAllResults(results);
 
@@ -93,7 +111,13 @@ describe('Storage', () => {
 
     it('prepends new result to existing results', () => {
       const existing = [
-        { download: 100, upload: 50, ping: 10, jitter: 2, timestamp: '2026-01-01T00:00:00.000Z' },
+        {
+          download: 100,
+          upload: 50,
+          ping: 10,
+          jitter: 2,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
       ];
       writeAllResults(existing);
 
@@ -119,7 +143,13 @@ describe('Storage', () => {
   describe('deleteAllResults', () => {
     it('clears all results', () => {
       const results = [
-        { download: 100, upload: 50, ping: 10, jitter: 2, timestamp: '2026-01-01T00:00:00.000Z' },
+        {
+          download: 100,
+          upload: 50,
+          ping: 10,
+          jitter: 2,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
       ];
       writeAllResults(results);
 
@@ -132,7 +162,13 @@ describe('Storage', () => {
   describe('exportResults', () => {
     it('exports results as JSON', () => {
       const results = [
-        { download: 100, upload: 50, ping: 10, jitter: 2, timestamp: '2026-01-01T00:00:00.000Z' },
+        {
+          download: 100,
+          upload: 50,
+          ping: 10,
+          jitter: 2,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
       ];
       writeAllResults(results);
 
@@ -145,20 +181,39 @@ describe('Storage', () => {
 
     it('exports results as CSV', () => {
       const results = [
-        { download: 100, upload: 50, ping: 10, jitter: 2, timestamp: '2026-01-01T00:00:00.000Z' },
-        { download: 120, upload: 60, ping: 12, jitter: 3, timestamp: '2026-01-02T00:00:00.000Z' },
+        {
+          download: 100,
+          upload: 50,
+          ping: 10,
+          jitter: 2,
+          timestamp: '2026-01-01T00:00:00.000Z',
+        },
+        {
+          download: 120,
+          upload: 60,
+          ping: 12,
+          jitter: 3,
+          timestamp: '2026-01-02T00:00:00.000Z',
+        },
       ];
       writeAllResults(results);
 
       const stored = readAllResults();
       const header = 'timestamp,download_mbps,upload_mbps,ping_ms,jitter_ms';
       const rows = stored.map(
-        (r: { timestamp: string; download: number; upload: number; ping: number; jitter: number }) =>
-          `${r.timestamp},${r.download},${r.upload},${r.ping},${r.jitter}`,
+        (r: {
+          timestamp: string;
+          download: number;
+          upload: number;
+          ping: number;
+          jitter: number;
+        }) => `${r.timestamp},${r.download},${r.upload},${r.ping},${r.jitter}`
       );
       const csv = [header, ...rows].join('\n');
 
-      expect(csv).toContain('timestamp,download_mbps,upload_mbps,ping_ms,jitter_ms');
+      expect(csv).toContain(
+        'timestamp,download_mbps,upload_mbps,ping_ms,jitter_ms'
+      );
       expect(csv).toContain('2026-01-01T00:00:00.000Z,100,50,10,2');
       expect(csv).toContain('2026-01-02T00:00:00.000Z,120,60,12,3');
     });

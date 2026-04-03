@@ -19,12 +19,17 @@ const GRADE_COLORS: Record<string, string> = {
 
 export function QualityScore(props: QualityScoreProps) {
   const { download, upload, ping, jitter } = props;
-  const { score, grade, label } = calculateQualityScore({ download, upload, ping, jitter });
+  const { score, grade, label } = calculateQualityScore({
+    download,
+    upload,
+    ping,
+    jitter,
+  });
   const colorClass = GRADE_COLORS[grade] ?? GRADE_COLORS.F;
 
   return (
     <div className="cyber-card rounded-xl p-5">
-      <div className="mb-4 font-mono text-xs text-cyan-neon/60 uppercase tracking-wider">
+      <div className="mb-4 font-mono text-xs tracking-wider text-cyan-neon/60 uppercase">
         {'>'} Connection Quality
       </div>
 
@@ -33,14 +38,18 @@ export function QualityScore(props: QualityScoreProps) {
           className={`flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 ${colorClass}`}
         >
           <span className="font-mono text-4xl font-bold">{grade}</span>
-          <span className="font-mono text-[10px] uppercase tracking-wider opacity-70">Grade</span>
+          <span className="font-mono text-[10px] tracking-wider uppercase opacity-70">
+            Grade
+          </span>
         </div>
 
         <div className="flex-1">
           <div className="mb-3">
             <div className="flex items-center justify-between">
               <span className="font-mono text-xs text-slate-400">Score</span>
-              <span className="font-mono text-lg font-bold text-white">{score}/100</span>
+              <span className="font-mono text-lg font-bold text-white">
+                {score}/100
+              </span>
             </div>
             <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-800">
               <div

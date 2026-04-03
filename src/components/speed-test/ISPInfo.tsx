@@ -1,12 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  getConnectionInfo,
-  formatConnectionType,
-  formatDownlinkSpeed,
-  type NetworkInfo,
-} from '@/libs/NetworkInfo';
+import { getConnectionInfo, formatConnectionType, formatDownlinkSpeed } from '@/libs/NetworkInfo';
+import type { NetworkInfo } from '@/libs/NetworkInfo';
 
 type ISPData = {
   ip: string;
@@ -31,13 +27,13 @@ export function ISPInfo() {
     async function loadISPData() {
       try {
         const response = await fetch('/api/isp', { cache: 'no-store' });
-        if (!response.ok) return;
+        if (!response.ok) {return;}
         const data: ISPData = await response.json();
-        if (!cancelled) setIspData(data);
+        if (!cancelled) {setIspData(data);}
       } catch {
         // Silently fail
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {setLoading(false);}
       }
     }
 
@@ -51,7 +47,7 @@ export function ISPInfo() {
   if (loading) {
     return (
       <div className="cyber-card p-6">
-        <div className="mb-4 font-mono text-xs text-cyan-neon/60 uppercase tracking-wider">
+        <div className="mb-4 font-mono text-xs tracking-wider text-cyan-neon/60 uppercase">
           {'>'} Connection Info
         </div>
         <div className="animate-pulse space-y-3">
@@ -66,7 +62,7 @@ export function ISPInfo() {
 
   return (
     <div className="cyber-card p-6">
-      <div className="mb-4 font-mono text-xs text-cyan-neon/60 uppercase tracking-wider">
+      <div className="mb-4 font-mono text-xs tracking-wider text-cyan-neon/60 uppercase">
         {'>'} Connection Info
       </div>
       <div className="space-y-3 font-mono text-xs">
@@ -114,7 +110,9 @@ export function ISPInfo() {
             </div>
             <div className="flex items-center justify-between rounded-lg bg-slate-900/50 px-3 py-2">
               <span className="text-slate-500">REGION</span>
-              <span className="text-green-neon/80">{ispData.region || '—'}</span>
+              <span className="text-green-neon/80">
+                {ispData.region || '—'}
+              </span>
             </div>
             <div className="flex items-center justify-between rounded-lg bg-slate-900/50 px-3 py-2">
               <span className="text-slate-500">COUNTRY</span>
@@ -132,7 +130,7 @@ export function ISPInfo() {
         )}
         {!ispData && !networkInfo?.supported && (
           <p className="font-mono text-xs text-slate-600">
-            {'//'} Unable to detect connection info
+            // Unable to detect connection info
           </p>
         )}
       </div>
