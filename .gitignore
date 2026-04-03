@@ -67,6 +67,9 @@ build-archive.log
 # IDE
 .idea/
 
+# Releases (use GitHub Releases for distribution)
+releases/*.exe
+
 # Packages node_modules
 packages/*/node_modules
 packages/*/.turbo
